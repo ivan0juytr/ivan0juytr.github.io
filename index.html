@@ -1,0 +1,932 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nasometro Digitale – Home</title>
+
+    <!-- Lucide icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      :root {
+        --green-50: #f0fdf4;
+        --green-100: #dcfce7;
+        --green-500: #22c55e;
+        --green-600: #16a34a;
+        --yellow-50: #fefce8;
+        --yellow-500: #eab308;
+        --red-50: #fef2f2;
+        --red-500: #ef4444;
+        --blue-50: #eff6ff;
+        --blue-600: #2563eb;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-600: #4b5563;
+        --gray-900: #111827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background-color: var(--gray-50);
+        color: var(--gray-900);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Navbar */
+      .navbar {
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .navbar-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .nav-link {
+        padding: 0.4rem 0.6rem;
+        border-radius: 9999px;
+        color: var(--gray-600);
+      }
+
+      .nav-link:hover {
+        background-color: var(--gray-100);
+        color: var(--gray-900);
+      }
+
+      .nav-link.active {
+        background-color: var(--blue-50);
+        color: var(--blue-600);
+        font-weight: 500;
+      }
+
+      /* Main layout */
+      main {
+        flex: 1;
+      }
+
+      .main-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1.5fr);
+        gap: 2rem;
+        align-items: center;
+        margin-bottom: 2rem;
+      }
+
+      .hero-title {
+        font-size: clamp(1.8rem, 3vw, 2.3rem);
+        font-weight: 700;
+        margin: 0 0 0.75rem;
+      }
+
+      .hero-subtitle {
+        margin: 0 0 1.5rem;
+        color: var(--gray-600);
+        font-size: 0.98rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        align-items: center;
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.6rem 1.1rem;
+        border-radius: 9999px;
+        border: none;
+        background-color: var(--green-600);
+        color: #ffffff;
+        font-size: 0.95rem;
+        font-weight: 500;
+        cursor: pointer;
+        box-shadow: 0 10px 15px rgba(22, 163, 74, 0.25);
+        transition: transform 0.1s ease, box-shadow 0.1s ease,
+          background-color 0.1s ease;
+      }
+
+      .btn-primary:hover {
+        background-color: #15803d;
+        transform: translateY(-1px);
+        box-shadow: 0 12px 20px rgba(22, 163, 74, 0.3);
+      }
+
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1rem;
+        border-radius: 9999px;
+        border: 1px solid var(--gray-200);
+        background-color: #ffffff;
+        color: var(--gray-600);
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.1s ease, color 0.1s ease,
+          border-color 0.1s ease;
+      }
+
+      .btn-secondary:hover {
+        background-color: var(--gray-100);
+        color: var(--gray-900);
+        border-color: var(--gray-200);
+      }
+
+      .hero-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 9999px;
+        padding: 0.3rem 0.75rem;
+        background-color: var(--green-50);
+        color: var(--green-600);
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-bottom: 0.75rem;
+      }
+
+      .hero-side-card {
+        background: radial-gradient(circle at top left, #dcfce7, #eff6ff);
+        border-radius: 1rem;
+        padding: 1.25rem 1.25rem 1.5rem;
+        border: 1px solid var(--gray-100);
+      }
+
+      .hero-side-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem;
+      }
+
+      .hero-side-text {
+        margin: 0;
+        font-size: 0.85rem;
+        color: var(--gray-600);
+      }
+
+      .hero-highlight {
+        margin-top: 1rem;
+        padding: 0.65rem 0.75rem;
+        border-radius: 0.75rem;
+        background-color: rgba(255, 255, 255, 0.9);
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .hero-highlight-pill {
+        display: flex;
+        flex-direction: column;
+        gap: 0.15rem;
+      }
+
+      .hero-highlight-label {
+        font-size: 0.7rem;
+        color: var(--gray-600);
+      }
+
+      .hero-highlight-value {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      /* Stats cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+      }
+
+      .stat-card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1rem;
+        border: 1px solid var(--gray-100);
+        display: flex;
+        flex-direction: column;
+        gap: 0.3rem;
+      }
+
+      .stat-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-label {
+        font-size: 0.82rem;
+        color: var(--gray-600);
+      }
+
+      .stat-value {
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+
+      .stat-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border-radius: 9999px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.72rem;
+        font-weight: 500;
+      }
+
+      .stat-pill.green {
+        background-color: var(--green-50);
+        color: var(--green-600);
+      }
+
+      .stat-pill.yellow {
+        background-color: var(--yellow-50);
+        color: var(--yellow-500);
+      }
+
+      .stat-pill.red {
+        background-color: var(--red-50);
+        color: var(--red-500);
+      }
+
+      /* Recent items */
+      .section-title-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 0.75rem;
+      }
+
+      .section-title {
+        font-size: 0.95rem;
+        font-weight: 600;
+      }
+
+      .section-subtitle {
+        font-size: 0.8rem;
+        color: var(--gray-600);
+      }
+
+      .chip {
+        font-size: 0.8rem;
+        color: var(--blue-600);
+        cursor: pointer;
+      }
+
+      .list-card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        border: 1px solid var(--gray-100);
+        padding: 0.75rem;
+      }
+
+      .item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        padding: 0.5rem 0.25rem;
+      }
+
+      .item-row + .item-row {
+        border-top: 1px solid var(--gray-100);
+      }
+
+      .item-main {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+      }
+
+      .item-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 9999px;
+        background-color: var(--gray-100);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .item-text-title {
+        font-size: 0.9rem;
+        font-weight: 500;
+      }
+
+      .item-text-sub {
+        font-size: 0.78rem;
+        color: var(--gray-600);
+      }
+
+      .item-tag {
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.15rem 0.5rem;
+        border-radius: 9999px;
+      }
+
+      .tag-ok {
+        background-color: var(--green-50);
+        color: var(--green-600);
+      }
+
+      .tag-warn {
+        background-color: var(--yellow-50);
+        color: var(--yellow-500);
+      }
+
+      .tag-bad {
+        background-color: var(--red-50);
+        color: var(--red-500);
+      }
+
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--gray-200);
+        background-color: #ffffff;
+      }
+
+      .footer-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.8rem 1rem;
+        font-size: 0.78rem;
+        color: var(--gray-600);
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 768px) {
+        .hero {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .stats-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 640px) {
+        .navbar-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .navbar-links {
+          width: 100%;
+          overflow-x: auto;
+        }
+
+        .stats-grid {
+          grid-template-columns: minmax(0, 1fr);
+        }
+
+        .footer-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      .navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.navbar-inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.navbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.brand-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* Link base */
+.nav-link {
+  padding: 0.4rem 0.7rem;
+  border-radius: 9999px;
+  color: var(--gray-600);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.nav-link.active {
+  background-color: var(--blue-50);
+  color: var(--blue-600);
+  font-weight: 500;
+}
+
+/* Bottone hamburger */
+.nav-toggle {
+  display: none; /* visibile solo su mobile */
+  border: none;
+  background: transparent;
+  padding: 0.3rem;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.nav-toggle:hover {
+  background-color: var(--gray-100);
+}
+
+.nav-toggle-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Layout mobile-first */
+@media (max-width: 768px) {
+  .navbar-inner {
+    padding-inline: 0.75rem;
+  }
+
+  .navbar-links {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--gray-100);
+    display: none;           /* chiuso di default */
+  }
+
+  .navbar-links.open {
+    display: flex;           /* aperto quando c'è .open */
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .navbar-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .navbar-links {
+    display: flex !important; /* sempre visibile su desktop */
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Navbar -->
+      <header class="navbar">
+  <div class="navbar-inner">
+    <div class="navbar-top">
+      <a href="index.html" class="navbar-brand">
+        <i data-lucide="scan-line" class="brand-icon"></i>
+        <span>Nasometro Digitale</span>
+      </a>
+
+      <button id="navToggle" class="nav-toggle" aria-label="Apri menu">
+        <i data-lucide="menu" class="nav-toggle-icon"></i>
+      </button>
+    </div>
+
+    <nav id="navMenu" class="navbar-links">
+      <a href="index.html" class="nav-link active">Home</a>
+      <a href="analisi.html" class="nav-link">Analisi</a>
+      <a href="storico.html" class="nav-link">Storico</a>
+      <a href="impostazioni.html" class="nav-link">Impostazioni</a>
+      <a href="informazioni.html" class="nav-link">Info</a>
+    </nav>
+  </div>
+</header>
+
+      <!-- Main -->
+      <main>
+        <div class="main-inner">
+          <!-- Hero -->
+          <section class="hero">
+            <div>
+              <div class="hero-badge">
+                <i data-lucide="leaf" style="width: 14px; height: 14px"></i>
+                <span>Riduci gli sprechi in cucina</span>
+              </div>
+              <h1 class="hero-title">Il tuo nasometro per il frigorifero.</h1>
+              <p class="hero-subtitle">
+                Nasometro Digitale ti aiuta a capire quanto è fresco il cibo
+                nel tuo frigo, combinando tempo, condizioni di conservazione e
+                (opzionalmente) sensori VOC.
+              </p>
+
+              <div class="hero-actions">
+                <a href="analisi.html" class="btn-primary">
+                  <i data-lucide="sparkles" style="width: 16px; height: 16px"></i>
+                  <span>Analizza un alimento</span>
+                </a>
+                <a href="storico.html" class="btn-secondary">
+                  <i data-lucide="clock" style="width: 16px; height: 16px"></i>
+                  <span>Vedi storico</span>
+                </a>
+              </div>
+            </div>
+
+            <aside class="hero-side-card">
+              <h3 class="hero-side-title">Stato del tuo frigorifero</h3>
+              <p class="hero-side-text" id="fridgeStatusText">
+                Caricamento dati dal tuo ultimo utilizzo...
+              </p>
+
+              <div class="hero-highlight" id="fridgeHighlight">
+                <div class="hero-highlight-pill">
+                  <span class="hero-highlight-label">Temperatura media</span>
+                  <span
+                    class="hero-highlight-value"
+                    id="fridgeTempDisplay"
+                  ></span>
+                </div>
+                <div class="hero-highlight-pill">
+                  <span class="hero-highlight-label">Sensore Bluetooth</span>
+                  <span
+                    class="hero-highlight-value"
+                    id="bluetoothStatusDisplay"
+                  ></span>
+                </div>
+              </div>
+            </aside>
+          </section>
+
+          <!-- Stats -->
+          <section>
+            <div class="stats-grid">
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Ancora buoni</span>
+                  <span class="stat-pill green">
+                    <i
+                      data-lucide="smile-plus"
+                      style="width: 14px; height: 14px"
+                    ></i>
+                    <span>OK</span>
+                  </span>
+                </div>
+                <div class="stat-value" id="statOk">0</div>
+                <div class="section-subtitle">
+                  Alimenti stimati sicuri da consumare.
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Da consumare a breve</span>
+                  <span class="stat-pill yellow">
+                    <i
+                      data-lucide="alert-circle"
+                      style="width: 14px; height: 14px"
+                    ></i>
+                    <span>Presto</span>
+                  </span>
+                </div>
+                <div class="stat-value" id="statSoon">0</div>
+                <div class="section-subtitle">
+                  Alimenti che stanno per raggiungere il limite.
+                </div>
+              </div>
+
+              <div class="stat-card">
+                <div class="stat-header">
+                  <span class="stat-label">Da eliminare</span>
+                  <span class="stat-pill red">
+                    <i
+                      data-lucide="skull"
+                      style="width: 14px; height: 14px"
+                    ></i>
+                    <span>Rischio</span>
+                  </span>
+                </div>
+                <div class="stat-value" id="statBad">0</div>
+                <div class="section-subtitle">
+                  Alimenti potenzialmente non sicuri.
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Recent items -->
+          <section>
+            <div class="section-title-row">
+              <div>
+                <h2 class="section-title">Ultime analisi</h2>
+                <p class="section-subtitle">
+                  Una panoramica degli ultimi alimenti che hai controllato.
+                </p>
+              </div>
+              <a href="storico.html" class="chip">
+                Vedi tutto
+                <i data-lucide="chevron-right" style="width: 14px; height: 14px"></i>
+              </a>
+            </div>
+
+            <div class="list-card" id="recentList">
+              <!-- Voci generate via JS -->
+            </div>
+          </section>
+        </div>
+      </main>
+
+      <!-- Footer -->
+      <footer>
+        <div class="footer-inner">
+          <span>Nasometro Digitale • Versione 1.0.0</span>
+          <span>Progetto per la riduzione degli sprechi alimentari.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      // Inizializza icone Lucide
+      lucide.createIcons();
+
+      // Chiavi usate in localStorage in tutte le pagine
+      const STORAGE_KEYS = {
+        fridgeTemp: 'nasometro_fridge_temp',
+        bluetooth: 'nasometro_bluetooth_enabled',
+        stats: 'nasometro_stats',
+        recent: 'nasometro_recent_items'
+      };
+
+      // Valori di default se non ci sono dati in localStorage
+      function getDefaultStats() {
+        return { ok: 0, soon: 0, bad: 0 };
+      }
+
+      function getDefaultRecent() {
+        return [];
+      }
+
+      // Helpers localStorage
+      function readNumber(key, fallback) {
+        const raw = localStorage.getItem(key);
+        if (raw === null) return fallback;
+        const n = parseFloat(raw);
+        return isNaN(n) ? fallback : n;
+      }
+
+      function readBoolean(key, fallback) {
+        const raw = localStorage.getItem(key);
+        if (raw === null) return fallback;
+        return raw === 'true';
+      }
+
+      function readJSON(key, fallback) {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        try {
+          return JSON.parse(raw);
+        } catch {
+          return fallback;
+        }
+      }
+
+      // Legge i dati salvati da altre pagine (es. impostazioni, analisi)
+      const fridgeTemp = readNumber(STORAGE_KEYS.fridgeTemp, 4);
+      const bluetoothEnabled = readBoolean(STORAGE_KEYS.bluetooth, false);
+      const stats = readJSON(STORAGE_KEYS.stats, getDefaultStats());
+      const recentItems = readJSON(STORAGE_KEYS.recent, getDefaultRecent());
+
+      // Aggiorna UI temperatura / sensore
+      const fridgeTempDisplay = document.getElementById('fridgeTempDisplay');
+      const bluetoothStatusDisplay = document.getElementById(
+        'bluetoothStatusDisplay'
+      );
+      const fridgeStatusText = document.getElementById('fridgeStatusText');
+      const fridgeHighlight = document.getElementById('fridgeHighlight');
+
+      fridgeTempDisplay.textContent = fridgeTemp.toFixed(1) + '°C';
+
+      bluetoothStatusDisplay.textContent = bluetoothEnabled
+        ? 'Attivo'
+        : 'Non attivo';
+
+      if (fridgeTemp >= 2 && fridgeTemp <= 4) {
+        fridgeStatusText.textContent =
+          'Il frigo sembra impostato su una temperatura ideale per conservare al meglio gli alimenti.';
+      } else if (fridgeTemp > 4) {
+        fridgeStatusText.textContent =
+          'La temperatura sembra un po’ alta: prova a scendere verso 3–4°C per allungare la vita degli alimenti.';
+      } else {
+        fridgeStatusText.textContent =
+          'La temperatura è molto bassa: buona per la conservazione, ma controlla che non si formi ghiaccio sugli alimenti.';
+      }
+
+      // Aggiorna le stats
+      document.getElementById('statOk').textContent = stats.ok || 0;
+      document.getElementById('statSoon').textContent = stats.soon || 0;
+      document.getElementById('statBad').textContent = stats.bad || 0;
+
+      // Popola lista "Ultime analisi"
+      const recentList = document.getElementById('recentList');
+
+      function createItemRow(item) {
+        // item: { name, status, date, location }
+        const row = document.createElement('div');
+        row.className = 'item-row';
+
+        const main = document.createElement('div');
+        main.className = 'item-main';
+
+        const iconWrapper = document.createElement('div');
+        iconWrapper.className = 'item-icon';
+
+        const icon = document.createElement('i');
+        icon.setAttribute('data-lucide', 'utensils');
+        icon.style.width = '16px';
+        icon.style.height = '16px';
+
+        iconWrapper.appendChild(icon);
+
+        const textWrap = document.createElement('div');
+        const titleEl = document.createElement('div');
+        titleEl.className = 'item-text-title';
+        titleEl.textContent = item.name;
+
+        const subEl = document.createElement('div');
+        subEl.className = 'item-text-sub';
+        subEl.textContent = item.date + ' • ' + (item.location || 'Frigo');
+
+        textWrap.appendChild(titleEl);
+        textWrap.appendChild(subEl);
+
+        main.appendChild(iconWrapper);
+        main.appendChild(textWrap);
+
+        const tag = document.createElement('span');
+        tag.className = 'item-tag';
+
+        if (item.status === 'ok') {
+          tag.classList.add('tag-ok');
+          tag.textContent = 'OK';
+        } else if (item.status === 'soon') {
+          tag.classList.add('tag-warn');
+          tag.textContent = 'Da consumare';
+        } else {
+          tag.classList.add('tag-bad');
+          tag.textContent = 'Da eliminare';
+        }
+
+        row.appendChild(main);
+        row.appendChild(tag);
+
+        return row;
+      }
+
+      if (!recentItems || recentItems.length === 0) {
+        const empty = document.createElement('div');
+        empty.style.fontSize = '0.8rem';
+        empty.style.color = 'var(--gray-600)';
+        empty.textContent =
+          'Ancora nessuna analisi registrata. Inizia analizzando un alimento.';
+        recentList.appendChild(empty);
+      } else {
+        // Mostra massimo 3 elementi
+        recentItems.slice(0, 3).forEach((item) => {
+          recentList.appendChild(createItemRow(item));
+        });
+      }
+
+      // Re-render icone nella lista generata dinamicamente
+      lucide.createIcons();
+
+
+    </script>
+    <script>
+  // Inizializza icone Lucide (se non lo hai già in pagina, tieni solo una chiamata)
+  lucide.createIcons();
+
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+
+  if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+      const isOpen = navMenu.classList.toggle('open');
+      // Cambia icona menu / X
+      navToggle.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+      icon.className = 'nav-toggle-icon';
+      navToggle.appendChild(icon);
+      lucide.createIcons();
+    });
+
+    // Chiudi menu al click su un link (mobile UX)
+    navMenu.querySelectorAll('a.nav-link').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768 && navMenu.classList.contains('open')) {
+          navMenu.classList.remove('open');
+          navToggle.innerHTML = '';
+          const icon = document.createElement('i');
+          icon.setAttribute('data-lucide', 'menu');
+          icon.className = 'nav-toggle-icon';
+          navToggle.appendChild(icon);
+          lucide.createIcons();
+        }
+      });
+    });
+  }
+</script>
+
+  </body>
+</html>

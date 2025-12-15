@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nasometro Digitale – Analisi alimento</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+      :root {
+        --green-50: #f0fdf4;
+        --green-100: #dcfce7;
+        --green-500: #22c55e;
+        --green-600: #16a34a;
+        --yellow-50: #fefce8;
+        --yellow-500: #eab308;
+        --red-50: #fef2f2;
+        --red-500: #ef4444;
+        --blue-50: #eff6ff;
+        --blue-600: #2563eb;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-900: #111827;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background-color: var(--gray-50);
+        color: var(--gray-900);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Navbar (stessa della home) */
+      .navbar {
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .navbar-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .nav-link {
+        padding: 0.4rem 0.6rem;
+        border-radius: 9999px;
+        color: var(--gray-600);
+      }
+
+      .nav-link:hover {
+        background-color: var(--gray-100);
+        color: var(--gray-900);
+      }
+
+      .nav-link.active {
+        background-color: var(--blue-50);
+        color: var(--blue-600);
+        font-weight: 500;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      .main-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: 1.5rem;
+        align-items: flex-start;
+      }
+
+      @media (max-width: 768px) {
+        .layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      h1 {
+        font-size: 1.4rem;
+        margin: 0 0 0.25rem;
+      }
+
+      .page-subtitle {
+        margin: 0 0 1.5rem;
+        font-size: 0.9rem;
+        color: var(--gray-600);
+      }
+
+      /* Card generica */
+      .card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        border: 1px solid var(--gray-100);
+      }
+
+      .card-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .card-title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .card-subtitle {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--gray-600);
+      }
+
+      /* Form */
+      .form-grid {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .field-label {
+        font-size: 0.82rem;
+        font-weight: 500;
+      }
+
+      .field-hint {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+      }
+
+      .input,
+      .select,
+      .textarea {
+        border-radius: 0.5rem;
+        border: 1px solid var(--gray-300);
+        padding: 0.5rem 0.6rem;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: inherit;
+        background-color: #ffffff;
+      }
+
+      .input:focus,
+      .select:focus,
+      .textarea:focus {
+        outline: 2px solid var(--blue-600);
+        outline-offset: 1px;
+        border-color: transparent;
+      }
+
+      .textarea {
+        resize: vertical;
+        min-height: 72px;
+      }
+
+      .inline {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .inline > * {
+        flex: 1;
+      }
+
+      .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border-radius: 9999px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.75rem;
+        color: var(--gray-600);
+        background-color: var(--gray-100);
+      }
+
+      /* Buttons */
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 9999px;
+        border: none;
+        background-color: var(--green-600);
+        color: #ffffff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.1s ease, transform 0.1s ease,
+          box-shadow 0.1s ease;
+        box-shadow: 0 8px 12px rgba(22, 163, 74, 0.2);
+      }
+
+      .btn-primary:hover {
+        background-color: #15803d;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 16px rgba(22, 163, 74, 0.25);
+      }
+
+      .btn-ghost {
+        border: none;
+        background: transparent;
+        color: var(--gray-600);
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.2rem;
+      }
+
+      .btn-ghost:hover {
+        color: var(--gray-900);
+      }
+
+      /* Pannello risultato */
+      .result-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 9999px;
+        padding: 0.18rem 0.6rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .result-badge.ok {
+        background-color: var(--green-50);
+        color: var(--green-600);
+      }
+
+      .result-badge.soon {
+        background-color: var(--yellow-50);
+        color: var(--yellow-500);
+      }
+
+      .result-badge.bad {
+        background-color: var(--red-50);
+        color: var(--red-500);
+      }
+
+      .result-score {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem;
+      }
+
+      .result-label {
+        font-size: 0.9rem;
+        margin: 0 0 0.5rem;
+      }
+
+      .result-text {
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        margin: 0 0 0.75rem;
+      }
+
+      .result-meta {
+        font-size: 0.78rem;
+        color: var(--gray-500);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 0.4rem;
+      }
+
+      .pill {
+        font-size: 0.7rem;
+        border-radius: 9999px;
+        padding: 0.1rem 0.6rem;
+        border: 1px dashed var(--gray-300);
+        color: var(--gray-600);
+      }
+
+      .tip-box {
+        margin-top: 0.75rem;
+        padding: 0.6rem 0.7rem;
+        border-radius: 0.6rem;
+        background-color: var(--blue-50);
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        display: flex;
+        gap: 0.4rem;
+      }
+
+      .tip-text {
+        margin: 0;
+      }
+
+      footer {
+        border-top: 1px solid var(--gray-200);
+        background-color: #ffffff;
+      }
+
+      .footer-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.8rem 1rem;
+        font-size: 0.78rem;
+        color: var(--gray-600);
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 640px) {
+        .navbar-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .navbar-links {
+          width: 100%;
+          overflow-x: auto;
+        }
+
+        .footer-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+
+      .navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.navbar-inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.navbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.brand-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* Link base */
+.nav-link {
+  padding: 0.4rem 0.7rem;
+  border-radius: 9999px;
+  color: var(--gray-600);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.nav-link.active {
+  background-color: var(--blue-50);
+  color: var(--blue-600);
+  font-weight: 500;
+}
+
+/* Bottone hamburger */
+.nav-toggle {
+  display: none; /* visibile solo su mobile */
+  border: none;
+  background: transparent;
+  padding: 0.3rem;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.nav-toggle:hover {
+  background-color: var(--gray-100);
+}
+
+.nav-toggle-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Layout mobile-first */
+@media (max-width: 768px) {
+  .navbar-inner {
+    padding-inline: 0.75rem;
+  }
+
+  .navbar-links {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--gray-100);
+    display: none;           /* chiuso di default */
+  }
+
+  .navbar-links.open {
+    display: flex;           /* aperto quando c'è .open */
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .navbar-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .navbar-links {
+    display: flex !important; /* sempre visibile su desktop */
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Navbar -->
+  <header class="navbar">
+  <div class="navbar-inner">
+    <div class="navbar-top">
+      <a href="index.html" class="navbar-brand">
+        <i data-lucide="scan-line" class="brand-icon"></i>
+        <span>Nasometro Digitale</span>
+      </a>
+
+      <button id="navToggle" class="nav-toggle" aria-label="Apri menu">
+        <i data-lucide="menu" class="nav-toggle-icon"></i>
+      </button>
+    </div>
+
+    <nav id="navMenu" class="navbar-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="analisi.html" class="nav-link active">Analisi</a>
+      <a href="storico.html" class="nav-link">Storico</a>
+      <a href="impostazioni.html" class="nav-link">Impostazioni</a>
+      <a href="informazioni.html" class="nav-link">Info</a>
+    </nav>
+  </div>
+</header>
+      <main>
+        <div class="main-inner">
+          <h1>Analizza un alimento</h1>
+          <p class="page-subtitle">
+            Inserisci alcune informazioni sull’alimento e lascia che il
+            Nasometro stimi la sua freschezza. Nessun dato viene inviato al
+            server: tutto resta nel tuo browser.
+          </p>
+
+          <div class="layout">
+            <!-- Colonna sinistra: form -->
+            <section class="card">
+              <div class="card-header-row">
+                <div>
+                  <h2 class="card-title">Dettagli alimento</h2>
+                  <p class="card-subtitle">
+                    Più i dati sono accurati, più la stima sarà affidabile.
+                  </p>
+                </div>
+                <span class="badge-soft">
+                  <i data-lucide="shield-check" style="width: 14px; height: 14px"></i>
+                  <span>Solo sul tuo dispositivo</span>
+                </span>
+              </div>
+
+              <form id="analysisForm" class="form-grid">
+                <div class="field">
+                  <label class="field-label" for="name">Nome alimento *</label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    class="input"
+                    placeholder="Es. Petto di pollo, Insalata mista..."
+                    required
+                  />
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="category">Categoria</label>
+                  <select id="category" name="category" class="select">
+                    <option value="">Seleziona una categoria</option>
+                    <option value="carne">Carne / Pesce</option>
+                    <option value="latticini">Latticini</option>
+                    <option value="verdura">Frutta e Verdura</option>
+                    <option value="cotti">Cibi cotti</option>
+                    <option value="altro">Altro</option>
+                  </select>
+                  <span class="field-hint">
+                    Serve a calibrare leggermente la stima di rischio.
+                  </span>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="openedDate"
+                    >Data di apertura / preparazione *</label
+                  >
+                  <div class="inline">
+                    <input
+                      id="openedDate"
+                      name="openedDate"
+                      type="date"
+                      class="input"
+                      required
+                    />
+                    <select id="openedTime" name="openedTime" class="select">
+                      <option value="">Orario (facoltativo)</option>
+                      <option value="morning">Mattina</option>
+                      <option value="afternoon">Pomeriggio</option>
+                      <option value="evening">Sera</option>
+                    </select>
+                  </div>
+                  <span class="field-hint">
+                    Indica quando il prodotto è stato aperto o cucinato.
+                  </span>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="location">
+                    Dove è conservato?
+                  </label>
+                  <select id="location" name="location" class="select">
+                    <option value="frigo">Frigorifero (2–8°C)</option>
+                    <option value="freezer">Freezer (&lt; 0°C)</option>
+                    <option value="dispensa">Dispensa / ambiente</option>
+                    <option value="altro">Altro</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="notes">
+                    Note visive / olfattive
+                  </label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    class="textarea"
+                    placeholder="Es. Colore normale, odore leggermente acido, presenza di liquido nel contenitore..."
+                  ></textarea>
+                  <span class="field-hint">
+                    Il tuo giudizio resta fondamentale: segnala qui dubbi o
+                    dettagli utili.
+                  </span>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="photo">
+                    Foto (opzionale)
+                  </label>
+                  <input id="photo" name="photo" type="file" class="input" />
+                  <span class="field-hint">
+                    Questa demo non carica l’immagine su nessun server; è solo
+                    un placeholder.
+                  </span>
+                </div>
+
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-top: 0.5rem;
+                    gap: 0.75rem;
+                  "
+                >
+                  <button type="button" id="resetBtn" class="btn-ghost">
+                    <i
+                      data-lucide="rotate-ccw"
+                      style="width: 14px; height: 14px"
+                    ></i>
+                    Pulisci campi
+                  </button>
+
+                  <button type="submit" class="btn-primary">
+                    <i
+                      data-lucide="sparkles"
+                      style="width: 16px; height: 16px"
+                    ></i>
+                    Calcola freschezza
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <!-- Colonna destra: risultato -->
+            <aside class="card">
+              <div class="card-header-row" style="margin-bottom: 0.5rem">
+                <div>
+                  <h2 class="card-title">Risultato stima</h2>
+                  <p class="card-subtitle">
+                    Questa è una stima indicativa e non sostituisce il tuo
+                    giudizio.
+                  </p>
+                </div>
+              </div>
+
+              <div id="resultPanel">
+                <div class="result-badge ok" id="resultBadge">
+                  <i
+                    data-lucide="smile-plus"
+                    style="width: 14px; height: 14px"
+                  ></i>
+                  <span id="resultStatusLabel">In attesa di dati</span>
+                </div>
+
+                <p class="result-score" id="resultScore">--%</p>
+                <p class="result-label" id="resultLabel">
+                  Compila il form a sinistra e avvia l’analisi.
+                </p>
+                <p class="result-text" id="resultText">
+                  Il Nasometro userà data di apertura, categoria e condizioni di
+                  conservazione per stimare il rischio. I dati rimangono
+                  memorizzati solo sul tuo dispositivo.
+                </p>
+
+                <p class="result-meta" id="resultMeta">
+                  Nessuna analisi effettuata in questa sessione.
+                </p>
+
+                <div class="pill-row">
+                  <span class="pill" id="pillTime">Tempo non calcolato</span>
+                  <span class="pill" id="pillCategory">Categoria non definita</span>
+                  <span class="pill" id="pillLocation">Posizione non impostata</span>
+                </div>
+
+                <div class="tip-box">
+                  <i data-lucide="info" style="width: 14px; height: 14px"></i>
+                  <p class="tip-text" id="resultTip">
+                    Non consumare mai alimenti con odore sgradevole, muffe
+                    evidenti o dubbi sulla sicurezza, anche se la stima appare
+                    favorevole.
+                  </p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <div class="footer-inner">
+          <span>Nasometro Digitale • Versione 1.0.0</span>
+          <span>Le stime non sostituiscono il buon senso e le norme igieniche.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      const STORAGE_KEYS = {
+        fridgeTemp: 'nasometro_fridge_temp',
+        bluetooth: 'nasometro_bluetooth_enabled',
+        stats: 'nasometro_stats',
+        recent: 'nasometro_recent_items'
+      };
+
+      function readJSON(key, fallback) {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        try {
+          return JSON.parse(raw);
+        } catch {
+          return fallback;
+        }
+      }
+
+      function writeJSON(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function getStats() {
+        return readJSON(STORAGE_KEYS.stats, { ok: 0, soon: 0, bad: 0 });
+      }
+
+      function getRecent() {
+        return readJSON(STORAGE_KEYS.recent, []);
+      }
+
+      // Elementi DOM
+      const form = document.getElementById('analysisForm');
+      const resetBtn = document.getElementById('resetBtn');
+
+      const resultBadge = document.getElementById('resultBadge');
+      const resultStatusLabel = document.getElementById('resultStatusLabel');
+      const resultScore = document.getElementById('resultScore');
+      const resultLabel = document.getElementById('resultLabel');
+      const resultText = document.getElementById('resultText');
+      const resultMeta = document.getElementById('resultMeta');
+      const pillTime = document.getElementById('pillTime');
+      const pillCategory = document.getElementById('pillCategory');
+      const pillLocation = document.getElementById('pillLocation');
+      const resultTip = document.getElementById('resultTip');
+
+      // Calcolo giorni trascorsi dalla data apertura
+      function daysSince(dateStr) {
+        if (!dateStr) return null;
+        const opened = new Date(dateStr);
+        if (isNaN(opened.getTime())) return null;
+        const now = new Date();
+        const diff = now.getTime() - opened.getTime();
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+      }
+
+      // "Motore" di scoring semplice e trasparente
+      function computeScore({ category, location, openedDate }) {
+        const d = daysSince(openedDate);
+        if (d === null || d < 0) {
+          return { percentage: null, status: 'invalid', description: '' };
+        }
+
+        let riskBase = 0; // più alto = più rischio
+        // Categoria
+        switch (category) {
+          case 'carne':
+            riskBase += 2;
+            break;
+          case 'latticini':
+            riskBase += 1.5;
+            break;
+          case 'cotti':
+            riskBase += 1.5;
+            break;
+          case 'verdura':
+            riskBase += 1;
+            break;
+          default:
+            riskBase += 1;
+        }
+
+        // Posizione di conservazione
+        switch (location) {
+          case 'freezer':
+            riskBase -= 1;
+            break;
+          case 'dispensa':
+            riskBase += 1;
+            break;
+          default:
+            break;
+        }
+
+        // Giorni trascorsi aumentano il rischio in modo non lineare
+        const timeFactor = d * 0.7;
+        const rawRisk = Math.max(0, riskBase + timeFactor);
+        // Converti in "sicurezza": 100% = rischio minimo
+        const safety = Math.max(0, 100 - rawRisk * 6);
+        let status = 'ok';
+        if (safety < 60 && safety >= 35) status = 'soon';
+        else if (safety < 35) status = 'bad';
+
+        return {
+          percentage: Math.round(safety),
+          status,
+          days: d
+        };
+      }
+
+      function statusTexts(status, days) {
+        if (status === 'ok') {
+          return {
+            label: 'Stima positiva',
+            text:
+              'L’alimento sembra ancora in una fascia di rischio contenuto. Controlla comunque odore e aspetto prima del consumo.',
+            tip:
+              'Conserva correttamente il cibo in contenitori chiusi per mantenere questa valutazione positiva più a lungo.'
+          };
+        }
+        if (status === 'soon') {
+          return {
+            label: 'Da consumare a breve',
+            text:
+              'L’alimento si sta avvicinando a una soglia di rischio più elevata. Se decidi di consumarlo, fallo entro poco tempo e solo se aspetto e odore sono normali.',
+            tip:
+              'Programma il consumo di questo alimento come una delle prossime preparazioni per evitare sprechi.'
+          };
+        }
+        if (status === 'bad') {
+          return {
+            label: 'Rischio elevato',
+            text:
+              'La stima indica un rischio aumentato. Se noti odori anomali, cambi di colore o texture, è più sicuro non consumare l’alimento.',
+            tip:
+              'In caso di dubbio, meglio non correre rischi per la salute. Smaltisci l’alimento in modo sicuro.'
+          };
+        }
+        return {
+          label: 'Dati incompleti',
+          text:
+            'Inserisci almeno nome e data di apertura per ottenere una prima stima della freschezza.',
+          tip:
+            'Per una stima più significativa, compila data, categoria e luogo di conservazione.'
+        };
+      }
+
+      function updateResultUI(score, formData) {
+        if (!score || score.percentage === null) {
+          resultBadge.className = 'result-badge ok';
+          resultStatusLabel.textContent = 'In attesa di dati';
+          resultScore.textContent = '--%';
+          resultLabel.textContent = 'Compila il form e avvia l’analisi.';
+          resultText.textContent =
+            'Il Nasometro userà data di apertura, categoria e condizioni di conservazione per stimare il rischio.';
+          resultMeta.textContent =
+            'Nessuna analisi effettuata in questa sessione.';
+          pillTime.textContent = 'Tempo non calcolato';
+          pillCategory.textContent = 'Categoria non definita';
+          pillLocation.textContent = 'Posizione non impostata';
+          resultTip.textContent =
+            'Non consumare mai alimenti con odore sgradevole, muffe o dubbi sulla sicurezza.';
+          return;
+        }
+
+        // Badge colore
+        resultBadge.className = 'result-badge ' + score.status;
+        if (score.status === 'ok') {
+          resultBadge.innerHTML =
+            '<i data-lucide="smile-plus" style="width:14px;height:14px"></i><span id="resultStatusLabel"></span>';
+        } else if (score.status === 'soon') {
+          resultBadge.innerHTML =
+            '<i data-lucide="alert-circle" style="width:14px;height:14px"></i><span id="resultStatusLabel"></span>';
+        } else {
+          resultBadge.innerHTML =
+            '<i data-lucide="skull" style="width:14px;height:14px"></i><span id="resultStatusLabel"></span>';
+        }
+        const labelEl = resultBadge.querySelector('#resultStatusLabel');
+        const texts = statusTexts(score.status, score.days);
+        labelEl.textContent = texts.label;
+
+        resultScore.textContent = score.percentage + '%';
+        resultLabel.textContent = texts.label;
+        resultText.textContent = texts.text;
+
+        const now = new Date();
+        const options = { day: '2-digit', month: '2-digit', year: 'numeric' };
+        const dateStr = now.toLocaleDateString('it-IT', options);
+        resultMeta.textContent =
+          'Analisi effettuata il ' +
+          dateStr +
+          (score.days != null ? ' • giorni trascorsi: ' + score.days : '');
+
+        // Pills
+        if (score.days != null) {
+          pillTime.textContent = score.days + ' giorni trascorsi';
+        } else {
+          pillTime.textContent = 'Tempo non calcolato';
+        }
+        pillCategory.textContent = formData.category
+          ? 'Categoria: ' + formData.category
+          : 'Categoria non definita';
+        pillLocation.textContent = formData.location
+          ? 'Posizione: ' + formData.location
+          : 'Posizione non impostata';
+
+        resultTip.textContent = texts.tip;
+
+        // Reinizializza icone nel pannello risultato
+        lucide.createIcons();
+      }
+
+      function updateStorage(score, formData) {
+        if (!score || score.percentage === null) return;
+
+        // Aggiorna stats
+        const stats = getStats();
+        if (score.status === 'ok') stats.ok = (stats.ok || 0) + 1;
+        else if (score.status === 'soon') stats.soon = (stats.soon || 0) + 1;
+        else stats.bad = (stats.bad || 0) + 1;
+        writeJSON(STORAGE_KEYS.stats, stats);
+
+        // Aggiorna recentItems
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('it-IT', {
+          day: '2-digit',
+          month: '2-digit',
+          year: 'numeric'
+        });
+
+        const newItem = {
+          name: formData.name || 'Alimento senza nome',
+          status: score.status,
+          date: dateStr,
+          location: formData.location || 'Frigo'
+        };
+
+        const current = getRecent();
+        const updated = [newItem, ...current].slice(0, 20);
+        writeJSON(STORAGE_KEYS.recent, updated);
+      }
+
+      form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        const formData = {
+          name: form.name.value.trim(),
+          category: form.category.value,
+          openedDate: form.openedDate.value,
+          openedTime: form.openedTime.value,
+          location: form.location.value,
+          notes: form.notes.value.trim()
+        };
+
+        const score = computeScore(formData);
+        updateResultUI(score, formData);
+        updateStorage(score, formData);
+      });
+
+      resetBtn.addEventListener('click', function () {
+        form.reset();
+        updateResultUI(null, {});
+      });
+
+      // Stato iniziale UI
+      updateResultUI(null, {});
+    </script>
+    <script>
+  // Inizializza icone Lucide (se non lo hai già in pagina, tieni solo una chiamata)
+  lucide.createIcons();
+
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+
+  if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+      const isOpen = navMenu.classList.toggle('open');
+      // Cambia icona menu / X
+      navToggle.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+      icon.className = 'nav-toggle-icon';
+      navToggle.appendChild(icon);
+      lucide.createIcons();
+    });
+
+    // Chiudi menu al click su un link (mobile UX)
+    navMenu.querySelectorAll('a.nav-link').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768 && navMenu.classList.contains('open')) {
+          navMenu.classList.remove('open');
+          navToggle.innerHTML = '';
+          const icon = document.createElement('i');
+          icon.setAttribute('data-lucide', 'menu');
+          icon.className = 'nav-toggle-icon';
+          navToggle.appendChild(icon);
+          lucide.createIcons();
+        }
+      });
+    });
+  }
+</script>
+
+  </body>
+</html>

@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nasometro Digitale – Impostazioni</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+
+        .navbar {
+  background-color: #ffffff;
+  border-bottom: 1px solid var(--gray-200);
+}
+
+.navbar-inner {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 0.6rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.navbar-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.brand-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.navbar-links {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+}
+
+/* Link base */
+.nav-link {
+  padding: 0.4rem 0.7rem;
+  border-radius: 9999px;
+  color: var(--gray-600);
+  text-decoration: none;
+}
+
+.nav-link:hover {
+  background-color: var(--gray-100);
+  color: var(--gray-900);
+}
+
+.nav-link.active {
+  background-color: var(--blue-50);
+  color: var(--blue-600);
+  font-weight: 500;
+}
+
+/* Bottone hamburger */
+.nav-toggle {
+  display: none; /* visibile solo su mobile */
+  border: none;
+  background: transparent;
+  padding: 0.3rem;
+  border-radius: 9999px;
+  cursor: pointer;
+}
+
+.nav-toggle:hover {
+  background-color: var(--gray-100);
+}
+
+.nav-toggle-icon {
+  width: 22px;
+  height: 22px;
+}
+
+/* Layout mobile-first */
+@media (max-width: 768px) {
+  .navbar-inner {
+    padding-inline: 0.75rem;
+  }
+
+  .navbar-links {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.4rem;
+    padding-top: 0.4rem;
+    border-top: 1px solid var(--gray-100);
+    display: none;           /* chiuso di default */
+  }
+
+  .navbar-links.open {
+    display: flex;           /* aperto quando c'è .open */
+  }
+
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .nav-link {
+    width: 100%;
+    padding: 0.5rem 0.6rem;
+  }
+}
+
+@media (min-width: 769px) {
+  .navbar-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .navbar-links {
+    display: flex !important; /* sempre visibile su desktop */
+    border-top: none;
+    padding-top: 0;
+  }
+}
+
+
+
+      :root {
+        --green-50: #f0fdf4;
+        --green-200: #bbf7d0;
+        --green-600: #16a34a;
+        --blue-50: #eff6ff;
+        --blue-200: #bfdbfe;
+        --blue-300: #93c5fd;
+        --blue-600: #2563eb;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-900: #111827;
+        --orange-50: #fff7ed;
+        --orange-200: #fed7aa;
+        --orange-600: #ea580c;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background-color: var(--gray-50);
+        color: var(--gray-900);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Navbar */
+      .navbar {
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .navbar-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.75rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+      }
+
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
+
+      .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+      }
+
+      .nav-link {
+        padding: 0.4rem 0.6rem;
+        border-radius: 9999px;
+        color: var(--gray-600);
+      }
+
+      .nav-link:hover {
+        background-color: var(--gray-100);
+        color: var(--gray-900);
+      }
+
+      .nav-link.active {
+        background-color: var(--blue-50);
+        color: var(--blue-600);
+        font-weight: 500;
+      }
+
+      main {
+        flex: 1;
+      }
+
+      .main-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+      }
+
+      h1 {
+        font-size: 1.4rem;
+        margin: 0 0 0.25rem;
+      }
+
+      .page-subtitle {
+        margin: 0 0 1.5rem;
+        font-size: 0.9rem;
+        color: var(--gray-600);
+      }
+
+      .stack {
+        max-width: 42rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        border: 1px solid var(--gray-100);
+      }
+
+      .card-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .card-header-main {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .card-title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .card-subtitle {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--gray-600);
+      }
+
+      /* Slider */
+      .row {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+
+      @media (max-width: 640px) {
+        .row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        .navbar-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        .navbar-links {
+          width: 100%;
+          overflow-x: auto;
+        }
+
+        .main-inner {
+          padding-inline: 0.75rem;
+        }
+      }
+
+      #fridgeTempSlider {
+        flex: 1;
+        appearance: none;
+        width: 100%;
+        height: 6px;
+        border-radius: 9999px;
+        background: linear-gradient(
+          to right,
+          #22c55e 0%,
+          #22c55e 40%,
+          var(--gray-200) 40%,
+          var(--gray-200) 100%
+        );
+        outline: none;
+      }
+
+      #fridgeTempSlider::-webkit-slider-thumb {
+        appearance: none;
+        width: 18px;
+        height: 18px;
+        border-radius: 9999px;
+        background-color: #ffffff;
+        border: 2px solid var(--green-600);
+        box-shadow: 0 0 0 3px var(--green-200);
+        cursor: pointer;
+        margin-top: -6px;
+      }
+
+      #fridgeTempSlider::-moz-range-thumb {
+        width: 18px;
+        height: 18px;
+        border-radius: 9999px;
+        background-color: #ffffff;
+        border: 2px solid var(--green-600);
+        box-shadow: 0 0 0 3px var(--green-200);
+        cursor: pointer;
+      }
+
+      .temp-box {
+        background-color: var(--green-50);
+        border: 1px solid var(--green-200);
+        border-radius: 0.5rem;
+        padding: 0.5rem 1rem;
+        min-width: 80px;
+        text-align: center;
+        font-weight: 500;
+        color: var(--green-600);
+        font-size: 0.95rem;
+      }
+
+      .info-banner {
+        margin-top: 0.75rem;
+        border-radius: 0.5rem;
+        padding: 0.6rem 0.7rem;
+        display: flex;
+        gap: 0.5rem;
+        font-size: 0.78rem;
+      }
+
+      .info-banner-blue {
+        background-color: var(--blue-50);
+        border: 1px solid var(--blue-200);
+        color: var(--gray-600);
+      }
+
+      .info-banner-gray {
+        background-color: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        color: var(--gray-600);
+      }
+
+      /* Toggle switch */
+      .switch-wrapper {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        cursor: pointer;
+      }
+
+      .switch-input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+
+      .switch-track {
+        width: 44px;
+        height: 24px;
+        background-color: var(--gray-200);
+        border-radius: 9999px;
+        position: relative;
+        transition: background-color 0.2s ease;
+      }
+
+      .switch-thumb {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 20px;
+        height: 20px;
+        background-color: #ffffff;
+        border-radius: 9999px;
+        border: 1px solid #d1d5db;
+        transition: transform 0.2s ease;
+      }
+
+      .switch-input:checked + .switch-track {
+        background-color: var(--blue-600);
+      }
+
+      .switch-input:checked + .switch-track .switch-thumb {
+        transform: translateX(20px);
+      }
+
+      /* Informazioni app */
+      .info-text {
+        font-size: 0.86rem;
+        color: var(--gray-600);
+      }
+
+      .info-text p {
+        margin: 0 0 0.6rem;
+      }
+
+      .info-text small {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+      }
+
+      /* Disclaimer */
+      .disclaimer {
+        background-color: var(--orange-50);
+        border: 1px solid var(--orange-200);
+        border-radius: 0.75rem;
+        padding: 0.9rem;
+        font-size: 0.78rem;
+        color: var(--orange-600);
+        display: flex;
+        gap: 0.5rem;
+      }
+
+      .disclaimer p {
+        margin: 0 0 0.4rem;
+      }
+
+      .disclaimer p:last-child {
+        margin-bottom: 0;
+      }
+
+      .small-muted {
+        font-size: 0.78rem;
+        color: var(--gray-500);
+      }
+
+      footer {
+        border-top: 1px solid var(--gray-200);
+        background-color: #ffffff;
+      }
+
+      .footer-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.8rem 1rem;
+        font-size: 0.78rem;
+        color: var(--gray-600);
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 640px) {
+        .footer-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Navbar -->
+      <header class="navbar">
+  <div class="navbar-inner">
+    <div class="navbar-top">
+      <a href="index.html" class="navbar-brand">
+        <i data-lucide="scan-line" class="brand-icon"></i>
+        <span>Nasometro Digitale</span>
+      </a>
+
+      <button id="navToggle" class="nav-toggle" aria-label="Apri menu">
+        <i data-lucide="menu" class="nav-toggle-icon"></i>
+      </button>
+    </div>
+
+    <nav id="navMenu" class="navbar-links">
+      <a href="index.html" class="nav-link">Home</a>
+      <a href="analisi.html" class="nav-link">Analisi</a>
+      <a href="storico.html" class="nav-link">Storico</a>
+      <a href="impostazioni.html" class="nav-link active">Impostazioni</a>
+      <a href="informazioni.html" class="nav-link">Info</a>
+    </nav>
+  </div>
+</header>
+
+      <main>
+        <div class="main-inner">
+          <h1>Impostazioni</h1>
+          <p class="page-subtitle">
+            Personalizza il comportamento del Nasometro. Le impostazioni sono
+            salvate solo sul dispositivo corrente.
+          </p>
+
+          <div class="stack">
+            <!-- Temperatura -->
+            <section class="card">
+              <div class="card-header-main" style="margin-bottom: 0.75rem">
+                <i
+                  data-lucide="thermometer"
+                  style="width: 22px; height: 22px; color: var(--green-600)"
+                ></i>
+                <div>
+                  <h2 class="card-title">Temperatura frigo predefinita</h2>
+                  <p class="card-subtitle">
+                    Usata come base per le analisi di rischio.
+                  </p>
+                </div>
+              </div>
+
+              <div class="row">
+                <input
+                  id="fridgeTempSlider"
+                  type="range"
+                  min="0"
+                  max="10"
+                  step="0.5"
+                  value="4"
+                />
+                <div class="temp-box">
+                  <span id="fridgeTempValue">4°C</span>
+                </div>
+              </div>
+
+              <div class="info-banner info-banner-blue">
+                <i
+                  data-lucide="info"
+                  style="width: 14px; height: 14px; margin-top: 0.05rem"
+                ></i>
+                <p style="margin: 0">
+                  La temperatura ideale del frigorifero è tra 2°C e 4°C. Valori
+                  più alti riducono la durata di conservazione degli alimenti,
+                  soprattutto quelli deperibili.
+                </p>
+              </div>
+
+              <p class="small-muted" style="margin-top: 0.5rem">
+                Questo valore non modifica la temperatura reale del tuo frigo,
+                ma viene usato dal Nasometro per adattare leggermente la stima
+                di rischio.
+              </p>
+            </section>
+
+            <!-- Bluetooth -->
+            <section class="card">
+              <div class="card-header-row">
+                <div class="card-header-main">
+                  <i
+                    data-lucide="bluetooth"
+                    style="width: 22px; height: 22px; color: var(--blue-600)"
+                  ></i>
+                  <div>
+                    <h2 class="card-title">Sensore Bluetooth</h2>
+                    <p class="card-subtitle">
+                      Attiva la lettura da un sensore VOC compatibile.
+                    </p>
+                  </div>
+                </div>
+
+                <label class="switch-wrapper">
+                  <input
+                    id="bluetoothToggle"
+                    type="checkbox"
+                    class="switch-input"
+                    aria-label="Attiva sensore Bluetooth"
+                  />
+                  <span class="switch-track">
+                    <span class="switch-thumb"></span>
+                  </span>
+                </label>
+              </div>
+
+              <div class="info-banner info-banner-gray">
+                <i
+                  data-lucide="radio"
+                  style="width: 14px; height: 14px; margin-top: 0.05rem"
+                ></i>
+                <p style="margin: 0; font-size: 0.8rem; color: var(--gray-600)">
+                  Se hai un sensore VOC Bluetooth compatibile, attiva questa
+                  opzione per ottenere una lettura più precisa dei gas volatili
+                  emessi dal cibo. In questa demo non viene effettuata alcuna
+                  vera connessione: l’impostazione è solo simulata e salvata in
+                  locale.
+                </p>
+              </div>
+            </section>
+
+            <!-- Info app -->
+            <section class="card">
+              <h2 class="card-title" style="margin-bottom: 0.5rem">
+                Informazioni sull’app
+              </h2>
+              <div class="info-text">
+                <p>
+                  <strong class="text-gray-900">Nasometro Digitale</strong> ti
+                  aiuta a ridurre gli sprechi alimentari analizzando la
+                  freschezza del cibo in modo dinamico.
+                </p>
+                <p>
+                  L’app combina analisi temporale, condizioni di conservazione e
+                  (in futuro) letture da sensori per stimare, in modo
+                  indicativo, la vita residua degli alimenti, andando oltre la
+                  semplice data di scadenza stampata.
+                </p>
+                <p>
+                  <small>
+                    Versione 1.0.0 • Prototipo locale • Nessun invio di dati a
+                    server esterni.
+                  </small>
+                </p>
+              </div>
+            </section>
+
+            <!-- Disclaimer -->
+            <section class="disclaimer">
+              <i
+                data-lucide="alert-triangle"
+                style="width: 18px; height: 18px; flex-shrink: 0"
+              ></i>
+              <div>
+                <p>
+                  <strong>Avviso importante:</strong> Le stime del Nasometro si
+                  basano su parametri generali e non sostituiscono il tuo
+                  giudizio, le etichette ufficiali o le indicazioni di
+                  professionisti.
+                </p>
+                <p>
+                  Non consumare mai alimenti che mostrano segni evidenti di
+                  deterioramento, odori sgradevoli, muffe o per i quali hai
+                  dubbi sulla sicurezza, anche se l’app suggerisce un rischio
+                  contenuto.
+                </p>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <div class="footer-inner">
+          <span>Nasometro Digitale • Versione 1.0.0</span>
+          <span>Le impostazioni sono salvate in localStorage sul tuo dispositivo.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      const STORAGE_KEYS = {
+        fridgeTemp: 'nasometro_fridge_temp',
+        bluetooth: 'nasometro_bluetooth_enabled'
+      };
+
+      const fridgeTempSlider = document.getElementById('fridgeTempSlider');
+      const fridgeTempValue = document.getElementById('fridgeTempValue');
+      const bluetoothToggle = document.getElementById('bluetoothToggle');
+
+      function readNumber(key, fallback) {
+        const raw = localStorage.getItem(key);
+        if (raw === null) return fallback;
+        const n = parseFloat(raw);
+        return isNaN(n) ? fallback : n;
+      }
+
+      function readBoolean(key, fallback) {
+        const raw = localStorage.getItem(key);
+        if (raw === null) return fallback;
+        return raw === 'true';
+      }
+
+      function updateSliderBackground(value) {
+        const min = parseFloat(fridgeTempSlider.min);
+        const max = parseFloat(fridgeTempSlider.max);
+        const percent = ((value - min) / (max - min)) * 100;
+        fridgeTempSlider.style.background =
+          'linear-gradient(to right, #22c55e 0%, #22c55e ' +
+          percent +
+          '%, var(--gray-200) ' +
+          percent +
+          '%, var(--gray-200) 100%)';
+      }
+
+      function setFridgeTemp(value) {
+        fridgeTempSlider.value = value;
+        fridgeTempValue.textContent = value.toFixed(1) + '°C';
+        updateSliderBackground(value);
+        localStorage.setItem(STORAGE_KEYS.fridgeTemp, String(value));
+      }
+
+      function setBluetooth(enabled) {
+        bluetoothToggle.checked = enabled;
+        localStorage.setItem(STORAGE_KEYS.bluetooth, enabled ? 'true' : 'false');
+      }
+
+      fridgeTempSlider.addEventListener('input', function (event) {
+        const v = parseFloat(event.target.value);
+        setFridgeTemp(v);
+      });
+
+      bluetoothToggle.addEventListener('change', function (event) {
+        setBluetooth(event.target.checked);
+      });
+
+      // Stato iniziale da localStorage (default: 4°C, bluetooth OFF)
+      const initialTemp = readNumber(STORAGE_KEYS.fridgeTemp, 4);
+      const initialBt = readBoolean(STORAGE_KEYS.bluetooth, false);
+
+      setFridgeTemp(initialTemp);
+      setBluetooth(initialBt);
+    </script>
+    <script>
+  // Inizializza icone Lucide (se non lo hai già in pagina, tieni solo una chiamata)
+  lucide.createIcons();
+
+  const navToggle = document.getElementById('navToggle');
+  const navMenu = document.getElementById('navMenu');
+
+  if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+      const isOpen = navMenu.classList.toggle('open');
+      // Cambia icona menu / X
+      navToggle.innerHTML = '';
+      const icon = document.createElement('i');
+      icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+      icon.className = 'nav-toggle-icon';
+      navToggle.appendChild(icon);
+      lucide.createIcons();
+    });
+
+    // Chiudi menu al click su un link (mobile UX)
+    navMenu.querySelectorAll('a.nav-link').forEach((link) => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768 && navMenu.classList.contains('open')) {
+          navMenu.classList.remove('open');
+          navToggle.innerHTML = '';
+          const icon = document.createElement('i');
+          icon.setAttribute('data-lucide', 'menu');
+          icon.className = 'nav-toggle-icon';
+          navToggle.appendChild(icon);
+          lucide.createIcons();
+        }
+      });
+    });
+  }
+</script>
+
+  </body>
+</html>
