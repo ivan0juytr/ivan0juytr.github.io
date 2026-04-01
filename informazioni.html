@@ -1,64 +1,482 @@
 <!DOCTYPE html>
 <html lang="it">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nasometro Digitale – Informazioni</title>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Nasometro Digitale – Informazioni</title>
+  <script src="https://unpkg.com/lucide@latest" defer></script>
+  <style>
+    :root {
+      --green-50: #f0fdf4;
+      --green-100: #dcfce7;
+      --green-500: #22c55e;
+      --green-600: #16a34a;
+      --yellow-50: #fefce8;
+      --yellow-500: #eab308;
+      --red-50: #fef2f2;
+      --red-500: #ef4444;
+      --blue-50: #eff6ff;
+      --blue-600: #2563eb;
+      --gray-50: #f9fafb;
+      --gray-100: #f3f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-500: #6b7280;
+      --gray-600: #4b5563;
+      --gray-900: #111827;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background-color: var(--gray-50);
+      color: var(--gray-900);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    a { color: inherit; text-decoration: none; }
+    .page { min-height: 100vh; display: flex; flex-direction: column; }
 
-    <script src="https://unpkg.com/lucide@latest"></script>
+    /* Navbar */
+    .navbar { background-color: #ffffff; border-bottom: 1px solid var(--gray-200); }
+    .navbar-inner {
+      max-width: 64rem; margin: 0 auto; padding: 0.6rem 1rem;
+      display: flex; flex-direction: column; gap: 0.4rem;
+    }
+    .navbar-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+    .navbar-brand { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; font-size: 1rem; }
+    .brand-icon { width: 20px; height: 20px; }
+    .navbar-links { display: flex; align-items: center; gap: 0.75rem; font-size: 0.9rem; }
+    .nav-link { padding: 0.4rem 0.7rem; border-radius: 9999px; color: var(--gray-600); text-decoration: none; }
+    .nav-link:hover { background-color: var(--gray-100); color: var(--gray-900); }
+    .nav-link.active { background-color: var(--blue-50); color: var(--blue-600); font-weight: 500; }
+    .nav-toggle { display: none; border: none; background: transparent; padding: 0.3rem; border-radius: 9999px; cursor: pointer; }
+    .nav-toggle:hover { background-color: var(--gray-100); }
+    .nav-toggle-icon { width: 22px; height: 22px; }
 
-    <style>
-      :root {
-        --green-50: #f0fdf4;
-        --green-600: #16a34a;
-        --blue-50: #eff6ff;
-        --blue-600: #2563eb;
-        --gray-50: #f9fafb;
-        --gray-100: #f3f4f6;
-        --gray-200: #e5e7eb;
-        --gray-500: #6b7280;
-        --gray-600: #4b5563;
-        --gray-900: #111827;
-        --orange-50: #fff7ed;
-        --orange-500: #f97316;
+    @media (max-width: 768px) {
+      .navbar-inner { padding-inline: 0.75rem; }
+      .navbar-links {
+        width: 100%; flex-direction: column; align-items: flex-start;
+        gap: 0.4rem; padding-top: 0.4rem; border-top: 1px solid var(--gray-100); display: none;
       }
+      .navbar-links.open { display: flex; }
+      .nav-toggle { display: inline-flex; align-items: center; justify-content: center; }
+      .nav-link { width: 100%; padding: 0.5rem 0.6rem; }
+    }
+    @media (min-width: 769px) {
+      .navbar-inner { flex-direction: row; align-items: center; justify-content: space-between; }
+      .navbar-links { display: flex !important; border-top: none; padding-top: 0; }
+    }
 
-      * {
-        box-sizing: border-box;
-      }
+    main { flex: 1; }
+    .main-inner {
+      max-width: 52rem;
+      margin: 0 auto;
+      padding: 2.5rem 1rem 4rem;
+    }
 
-      body {
-        margin: 0;
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          sans-serif;
-        background-color: var(--gray-50);
-        color: var(--gray-900);
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+    /* Hero */
+    .info-hero {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .info-hero-icon {
+      width: 52px; height: 52px;
+      background: linear-gradient(135deg, var(--green-100), var(--blue-50));
+      border-radius: 1rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      border: 1px solid var(--gray-100);
+    }
+    .info-hero-title { font-size: 1.5rem; font-weight: 700; margin: 0 0 0.2rem; }
+    .info-hero-sub   { font-size: 0.9rem; color: var(--gray-600); margin: 0; }
 
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
+    /* Sezioni */
+    .info-section { margin-bottom: 2rem; }
+    .section-heading {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem;
+      color: var(--gray-900);
+    }
+    .section-heading-icon {
+      width: 28px; height: 28px;
+      background-color: var(--gray-100);
+      border-radius: 0.4rem;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .info-text {
+      font-size: 0.9rem;
+      color: var(--gray-600);
+      line-height: 1.7;
+      margin: 0 0 0.6rem;
+    }
+    .info-text:last-child { margin-bottom: 0; }
 
-      .page {
-        min-height: 100vh;
-        display: flex;
-        flex-direction: column;
-      }
+    /* Card highlight */
+    .highlight-card {
+      background: linear-gradient(135deg, var(--green-50), var(--blue-50));
+      border: 1px solid var(--gray-100);
+      border-radius: 0.75rem;
+      padding: 1rem 1.1rem;
+      margin-bottom: 2rem;
+    }
+    .highlight-card p {
+      font-size: 0.88rem;
+      color: var(--gray-700, #374151);
+      margin: 0;
+      line-height: 1.65;
+    }
 
-      /* Navbar */
-      .navbar {
-        background-color: #ffffff;
-        border-bottom: 1px solid var(--gray-200);
-      }
+    /* Griglia feature */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.75rem;
+      margin-top: 0.75rem;
+    }
+    .feature-card {
+      background-color: #ffffff;
+      border: 1px solid var(--gray-100);
+      border-radius: 0.65rem;
+      padding: 0.85rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+    .feature-icon {
+      width: 32px; height: 32px;
+      border-radius: 0.4rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 0.1rem;
+    }
+    .feature-icon.green { background-color: var(--green-50); color: var(--green-600); }
+    .feature-icon.blue  { background-color: var(--blue-50);  color: var(--blue-600); }
+    .feature-icon.yellow{ background-color: var(--yellow-50);color: var(--yellow-500); }
+    .feature-icon.red   { background-color: var(--red-50);   color: var(--red-500); }
+    .feature-title { font-size: 0.85rem; font-weight: 600; }
+    .feature-desc  { font-size: 0.78rem; color: var(--gray-500); line-height: 1.5; }
 
-      .navbar-inner {
-        max-width: 64rem;
-        margin: 0 auto;
-        padding: 0.75rem 1rem;
+    /* Stack tech */
+    .tech-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.5rem;
+    }
+    .tech-pill {
+      display: inline-flex; align-items: center; gap: 0.3rem;
+      background-color: var(--gray-100);
+      border-radius: 9999px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.78rem;
+      color: var(--gray-600);
+      font-weight: 500;
+    }
+
+    /* Avviso */
+    .disclaimer-box {
+      margin-top: 2rem;
+      padding: 0.85rem 1rem;
+      background-color: var(--yellow-50);
+      border: 1px solid #fde68a;
+      border-radius: 0.65rem;
+      display: flex;
+      gap: 0.6rem;
+      align-items: flex-start;
+    }
+    .disclaimer-box p {
+      margin: 0;
+      font-size: 0.82rem;
+      color: #92400e;
+      line-height: 1.6;
+    }
+
+    /* Separator */
+    .divider { border: none; border-top: 1px solid var(--gray-200); margin: 1.75rem 0; }
+
+    footer { border-top: 1px solid var(--gray-200); background-color: #ffffff; }
+    .footer-inner {
+      max-width: 64rem; margin: 0 auto; padding: 0.8rem 1rem;
+      font-size: 0.78rem; color: var(--gray-600);
+      display: flex; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;
+    }
+    @media (max-width: 640px) { .footer-inner { flex-direction: column; align-items: flex-start; } }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-top">
+        <a href="index.html" class="navbar-brand">
+          <i data-lucide="scan-line" class="brand-icon"></i>
+          <span>Nasometro Digitale</span>
+        </a>
+        <button id="navToggle" class="nav-toggle" aria-label="Apri menu">
+          <i data-lucide="menu" class="nav-toggle-icon"></i>
+        </button>
+      </div>
+      <nav id="navMenu" class="navbar-links">
+        <a href="index.html"        class="nav-link">Home</a>
+        <a href="analisi.html"      class="nav-link">Analisi</a>
+        <a href="storico.html"      class="nav-link">Storico</a>
+        <a href="impostazioni.html" class="nav-link">Impostazioni</a>
+        <a href="informazioni.html" class="nav-link active">Info</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="main-inner">
+
+      <!-- Hero -->
+      <div class="info-hero">
+        <div class="info-hero-icon">
+          <i data-lucide="scan-line" style="width:26px;height:26px;color:var(--green-600)"></i>
+        </div>
+        <div>
+          <h1 class="info-hero-title">Nasometro Digitale</h1>
+          <p class="info-hero-sub">Un progetto web per la riduzione degli sprechi alimentari — fatto con HTML, CSS e JavaScript.</p>
+        </div>
+      </div>
+
+      <!-- Da dove nasce l'idea -->
+      <div class="info-section">
+        <h2 class="section-heading">
+          <div class="section-heading-icon">
+            <i data-lucide="lightbulb" style="width:15px;height:15px;color:var(--yellow-500)"></i>
+          </div>
+          Da dove nasce l'idea
+        </h2>
+        <p class="info-text">
+          Tutto è partito da una domanda abbastanza banale: quante volte hai buttato qualcosa dal frigo
+          senza sapere davvero se fosse ancora buono? O, al contrario, quante volte hai mangiato qualcosa
+          che forse avresti dovuto buttare prima?
+        </p>
+        <p class="info-text">
+          Il Nasometro Digitale nasce da questo: l'idea di costruire uno strumento semplice,
+          che non richiede connessione né account, e che aiuti a ragionare meglio sulla conservazione
+          degli alimenti. Non un oracolo — una guida.
+        </p>
+        <p class="info-text">
+          L'ho sviluppato come progetto per educazione civica, con l'obiettivo di toccare un tema
+          concreto come la sostenibilità alimentare: in Italia si sprecano ogni anno milioni di tonnellate
+          di cibo. Un'app che aiuti anche solo a ridurre qualche spreco domestico ha già un senso.
+        </p>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Come funziona -->
+      <div class="info-section">
+        <h2 class="section-heading">
+          <div class="section-heading-icon">
+            <i data-lucide="cpu" style="width:15px;height:15px;color:var(--blue-600)"></i>
+          </div>
+          Come funziona
+        </h2>
+        <p class="info-text">
+          Il modello di rischio è volutamente semplice e trasparente. Quando inserisci un alimento,
+          l'app calcola quanti giorni sono passati dalla data di apertura, poi applica un coefficiente
+          di rischio basato sulla categoria (la carne fresca deperisce più in fretta di una verdura)
+          e sul luogo di conservazione (freezer vs frigo vs dispensa).
+        </p>
+        <p class="info-text">
+          Il risultato è una percentuale di "sicurezza stimata" — da 0 a 100 — che viene poi tradotta
+          in tre stati: <strong>OK</strong>, <strong>Da consumare a breve</strong> e <strong>Rischio elevato</strong>.
+          Il tuo giudizio diretto (odore, colore, texture) resta sempre la fonte più affidabile.
+        </p>
+
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon green"><i data-lucide="database" style="width:16px;height:16px"></i></div>
+            <div class="feature-title">Solo locale</div>
+            <div class="feature-desc">Nessun dato viene inviato a server esterni. Tutto è nel localStorage del tuo browser.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon blue"><i data-lucide="sparkles" style="width:16px;height:16px"></i></div>
+            <div class="feature-title">Analisi AI (opzionale)</div>
+            <div class="feature-desc">Puoi fotografare un alimento e lasciare che un modello AI precompili automaticamente i campi del form.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon yellow"><i data-lucide="history" style="width:16px;height:16px"></i></div>
+            <div class="feature-title">Storico analisi</div>
+            <div class="feature-desc">Tutte le analisi vengono salvate localmente e filtrabili per stato, così tieni traccia di cosa c'è nel frigo.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon red"><i data-lucide="settings-2" style="width:16px;height:16px"></i></div>
+            <div class="feature-title">Impostazioni</div>
+            <div class="feature-desc">Puoi configurare la temperatura del tuo frigo e il flag sensore Bluetooth per personalizzare la stima.</div>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Stack tecnico -->
+      <div class="info-section">
+        <h2 class="section-heading">
+          <div class="section-heading-icon">
+            <i data-lucide="code-2" style="width:15px;height:15px;color:var(--gray-600)"></i>
+          </div>
+          Stack tecnico
+        </h2>
+        <p class="info-text">
+          Ho scelto di costruire tutto senza framework, senza build tool e senza backend.
+          Era un vincolo che mi sono imposto fin dall'inizio: volevo che il progetto fosse
+          comprensibile e modificabile anche senza Node.js, npm o qualsiasi altra dipendenza.
+          Apri il file HTML e funziona.
+        </p>
+        <div class="tech-list">
+          <span class="tech-pill"><i data-lucide="file-code" style="width:12px;height:12px"></i> HTML5</span>
+          <span class="tech-pill"><i data-lucide="palette" style="width:12px;height:12px"></i> CSS3 (variabili, grid, media query)</span>
+          <span class="tech-pill"><i data-lucide="braces" style="width:12px;height:12px"></i> JavaScript vanilla (ES2020+)</span>
+          <span class="tech-pill"><i data-lucide="hard-drive" style="width:12px;height:12px"></i> localStorage API</span>
+          <span class="tech-pill"><i data-lucide="box" style="width:12px;height:12px"></i> Lucide Icons (CDN)</span>
+          <span class="tech-pill"><i data-lucide="zap" style="width:12px;height:12px"></i> Groq API (vision, opzionale)</span>
+          <span class="tech-pill"><i data-lucide="github" style="width:12px;height:12px"></i> GitHub Pages (deploy)</span>
+        </div>
+        <p class="info-text" style="margin-top:0.75rem;">
+          L'unica dipendenza esterna "fissa" è Lucide per le icone SVG.
+          La funzione AI con Groq è opzionale: se non inserisci una chiave API, tutto il resto
+          dell'app funziona normalmente senza toccare nessuna rete esterna.
+        </p>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Connessione educazione civica -->
+      <div class="info-section">
+        <h2 class="section-heading">
+          <div class="section-heading-icon">
+            <i data-lucide="globe" style="width:15px;height:15px;color:var(--green-600)"></i>
+          </div>
+          Perché educazione civica
+        </h2>
+        <p class="info-text">
+          Lo spreco alimentare è uno dei temi centrali dell'Agenda 2030 dell'ONU.
+          L'obiettivo 12 ("Consumo e produzione responsabili") chiede di dimezzare lo spreco
+          alimentare globale entro il 2030 sia a livello di distribuzione che di consumo domestico.
+        </p>
+        <p class="info-text">
+          A livello domestico, il problema principale non è la cattiveria o la superficialità delle persone:
+          è che spesso mancano strumenti semplici per capire quando un alimento è ancora buono.
+          Il Nasometro vuole essere un piccolo contributo in quella direzione: uno strumento educativo
+          che aiuti a sviluppare consapevolezza sull'impatto delle proprie scelte quotidiane.
+        </p>
+
+        <div class="highlight-card">
+          <p>
+            In Italia si sprecano circa <strong>4,2 milioni di tonnellate di cibo all'anno</strong>
+            (fonte: Rapporto Waste Watcher 2023). La maggior parte avviene nelle case, non nella
+            filiera industriale. Imparare a gestire meglio il frigo è già un atto civico concreto.
+          </p>
+        </div>
+      </div>
+
+      <hr class="divider" />
+
+      <!-- Idee future -->
+      <div class="info-section">
+        <h2 class="section-heading">
+          <div class="section-heading-icon">
+            <i data-lucide="rocket" style="width:15px;height:15px;color:var(--blue-600)"></i>
+          </div>
+          Cosa potrei aggiungere in futuro
+        </h2>
+        <p class="info-text">
+          Questo è un prototipo, e come tale ha margini di miglioramento evidenti.
+          Alcune cose che ho in mente:
+        </p>
+        <p class="info-text">
+          <strong>Notifiche push</strong> — avvisare l'utente quando un alimento si avvicina alla
+          scadenza stimata, anche con il browser chiuso (Service Worker + Notification API).
+        </p>
+        <p class="info-text">
+          <strong>Modello di rischio più raffinato</strong> — integrare tabelle di conservazione
+          reali (quelle dell'ISS o del Ministero della Salute) invece di coefficienti arbitrari.
+        </p>
+        <p class="info-text">
+          <strong>Scansione barcode</strong> — leggere il codice a barre con la fotocamera per
+          recuperare automaticamente nome e categoria dal database di Open Food Facts.
+        </p>
+        <p class="info-text">
+          <strong>Sincronizzazione opzionale</strong> — permettere, volendo, di sincronizzare
+          lo storico tra dispositivi tramite un account anonimo (tipo PocketBase self-hosted).
+        </p>
+      </div>
+
+      <!-- Disclaimer -->
+      <div class="disclaimer-box">
+        <i data-lucide="triangle-alert" style="width:16px;height:16px;color:#d97706;flex-shrink:0;margin-top:1px"></i>
+        <p>
+          <strong>Nota importante:</strong> le stime del Nasometro Digitale sono puramente indicative
+          e basate su un modello semplificato. Non sostituiscono le indicazioni del produttore,
+          le norme igieniche o il buon senso. In caso di dubbio sulla commestibilità di un alimento,
+          non consumarlo.
+        </p>
+      </div>
+
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>Nasometro Digitale • Versione 1.0.0</span>
+      <span>Progetto per educazione civica — riduzione degli sprechi alimentari.</span>
+    </div>
+  </footer>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  lucide.createIcons();
+
+  // Navbar hamburger
+  const navToggle = document.getElementById('navToggle');
+  const navMenu   = document.getElementById('navMenu');
+  if (navToggle && navMenu) {
+    navToggle.addEventListener('click', () => {
+      const open = navMenu.classList.toggle('open');
+      navToggle.innerHTML = '';
+      const ic = document.createElement('i');
+      ic.setAttribute('data-lucide', open ? 'x' : 'menu');
+      ic.className = 'nav-toggle-icon';
+      navToggle.appendChild(ic);
+      lucide.createIcons();
+    });
+    navMenu.querySelectorAll('a.nav-link').forEach(link => {
+      link.addEventListener('click', () => {
+        if (window.innerWidth <= 768 && navMenu.classList.contains('open')) {
+          navMenu.classList.remove('open');
+          navToggle.innerHTML = '';
+          const ic = document.createElement('i');
+          ic.setAttribute('data-lucide', 'menu');
+          ic.className = 'nav-toggle-icon';
+          navToggle.appendChild(ic);
+          lucide.createIcons();
+        }
+      });
+    });
+  }
+
+}); // fine DOMContentLoaded
+</script>
+</body>
+</html>
         display: flex;
         align-items: center;
         justify-content: space-between;
