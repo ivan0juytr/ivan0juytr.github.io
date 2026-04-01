@@ -631,7 +631,7 @@ Rispondi SOLO con un oggetto JSON valido, senza markdown, senza testo extra:
     aiStatus.textContent = msg;
   }
 
-  /* ─── Helpers data ─────────────────────────────────────── */
+  /* ─── Logica scoring ───────────────────────────────────── */
   function daysSince(dateStr) {
     if (!dateStr) return null;
     const opened = new Date(dateStr);
@@ -639,7 +639,28 @@ Rispondi SOLO con un oggetto JSON valido, senza markdown, senza testo extra:
     return Math.floor((Date.now() - opened.getTime()) / 86400000);
   }
 
-  /* ─── UI risultato ──────────────────────────────────────── */
+  function computeScore({ category, location, openedDate }) {
+    const d = daysSince(openedDate);
+    if (d === null || d < 0) return { percentage: null, status: 'invalid' };
+
+    let risk = ({ carne: 2, latticini: 1.5, cotti: 1.5, verdura: 1 }[category] ?? 1);
+    if (location === 'freezer')  risk -= 1;
+    if (location === 'dispensa') risk += 1;
+
+    const safety = Math.max(0, 100 - (risk + d * 0.7) * 6);
+    const status = safety >= 60 ? 'ok' : safety >= 35 ? 'soon' : 'bad';
+    return { percentage: Math.round(safety), status, days: d };
+  }
+
+  function statusTexts(status) {
+    return {
+      ok:   { label: 'Stima positiva',       text: 'L\'alimento sembra ancora in una fascia di rischio contenuto. Controlla comunque odore e aspetto prima del consumo.', tip: 'Conserva correttamente il cibo in contenitori chiusi per mantenere questa valutazione positiva più a lungo.' },
+      soon: { label: 'Da consumare a breve', text: 'L\'alimento si sta avvicinando a una soglia di rischio più elevata. Consumalo entro poco tempo e solo se aspetto e odore sono normali.', tip: 'Programma il consumo di questo alimento come una delle prossime preparazioni per evitare sprechi.' },
+      bad:  { label: 'Rischio elevato',      text: 'La stima indica un rischio aumentato. Se noti odori anomali, cambi di colore o texture, è più sicuro non consumare l\'alimento.', tip: 'In caso di dubbio, meglio non correre rischi per la salute. Smaltisci l\'alimento in modo sicuro.' }
+    }[status] ?? { label: 'Dati incompleti', text: 'Inserisci almeno nome e data di apertura.', tip: 'Per una stima più significativa, compila data, categoria e luogo di conservazione.' };
+  }
+
+  /* ─── Aggiorna UI risultato ────────────────────────────── */
   const els = {
     badge:  document.getElementById('resultBadge'),
     score:  document.getElementById('resultScore'),
@@ -651,125 +672,58 @@ Rispondi SOLO con un oggetto JSON valido, senza markdown, senza testo extra:
     pLoc:   document.getElementById('pillLocation'),
     tip:    document.getElementById('resultTip'),
   };
+
   const ICONS = { ok: 'smile-plus', soon: 'alert-circle', bad: 'skull' };
 
-  function resetResultUI() {
-    els.badge.className = 'result-badge ok';
-    els.badge.innerHTML = '<i data-lucide="smile-plus" style="width:14px;height:14px"></i><span>In attesa di dati</span>';
-    els.score.textContent = '--%';
-    els.label.textContent = 'Compila il form e avvia l\'analisi.';
-    els.text.textContent  = 'Il Nasometro userà i dati che inserisci per stimare il rischio tramite AI.';
-    els.meta.textContent  = 'Nessuna analisi effettuata in questa sessione.';
-    els.pTime.textContent = 'Tempo non calcolato';
-    els.pCat.textContent  = 'Categoria non definita';
-    els.pLoc.textContent  = 'Posizione non impostata';
-    els.tip.textContent   = 'Non consumare mai alimenti con odore sgradevole, muffe o dubbi sulla sicurezza.';
-    lucide.createIcons();
-  }
+  function updateResultUI(score, formData) {
+    if (!score || score.percentage === null) {
+      els.badge.className = 'result-badge ok';
+      els.badge.innerHTML = '<i data-lucide="smile-plus" style="width:14px;height:14px"></i><span>In attesa di dati</span>';
+      els.score.textContent = '--%';
+      els.label.textContent = 'Compila il form e avvia l\'analisi.';
+      els.text.textContent  = 'Il Nasometro userà data di apertura, categoria e condizioni di conservazione per stimare il rischio.';
+      els.meta.textContent  = 'Nessuna analisi effettuata in questa sessione.';
+      els.pTime.textContent = 'Tempo non calcolato';
+      els.pCat.textContent  = 'Categoria non definita';
+      els.pLoc.textContent  = 'Posizione non impostata';
+      els.tip.textContent   = 'Non consumare mai alimenti con odore sgradevole, muffe o dubbi sulla sicurezza.';
+      lucide.createIcons(); return;
+    }
 
-  function renderResultUI(aiResult, formData) {
-    // aiResult: { percentage, status, label, text, tip }
-    const days = daysSince(formData.openedDate);
-    els.badge.className = `result-badge ${aiResult.status}`;
-    els.badge.innerHTML = `<i data-lucide="${ICONS[aiResult.status] ?? 'info'}" style="width:14px;height:14px"></i><span>${aiResult.label}</span>`;
-    els.score.textContent = aiResult.percentage + '%';
-    els.label.textContent = aiResult.label;
-    els.text.textContent  = aiResult.text;
-    els.meta.textContent  = `Analisi AI del ${new Date().toLocaleDateString('it-IT')}${days != null ? ' • giorni trascorsi: ' + days : ''}`;
-    els.pTime.textContent = days != null ? `${days} giorni trascorsi` : 'Tempo non calcolato';
+    const texts = statusTexts(score.status);
+    els.badge.className = `result-badge ${score.status}`;
+    els.badge.innerHTML = `<i data-lucide="${ICONS[score.status]}" style="width:14px;height:14px"></i><span>${texts.label}</span>`;
+    els.score.textContent = score.percentage + '%';
+    els.label.textContent = texts.label;
+    els.text.textContent  = texts.text;
+    els.meta.textContent  = `Analisi del ${new Date().toLocaleDateString('it-IT')}${score.days != null ? ' • giorni trascorsi: ' + score.days : ''}`;
+    els.pTime.textContent = score.days != null ? `${score.days} giorni trascorsi` : 'Tempo non calcolato';
     els.pCat.textContent  = formData.category ? `Categoria: ${formData.category}` : 'Categoria non definita';
-    els.pLoc.textContent  = formData.location  ? `Posizione: ${formData.location}`  : 'Posizione non impostata';
-    els.tip.textContent   = aiResult.tip;
+    els.pLoc.textContent  = formData.location ? `Posizione: ${formData.location}` : 'Posizione non impostata';
+    els.tip.textContent   = texts.tip;
     lucide.createIcons();
   }
 
-  /* ─── localStorage ──────────────────────────────────────── */
-  function updateStorage(aiResult, formData) {
-    if (!aiResult) return;
+  /* ─── Aggiorna localStorage ────────────────────────────── */
+  function updateStorage(score, formData) {
+    if (!score || score.percentage === null) return;
     const stats = getStats();
-    stats[aiResult.status] = (stats[aiResult.status] || 0) + 1;
+    stats[score.status] = (stats[score.status] || 0) + 1;
     writeJSON(KEYS.stats, stats);
+
     const newItem = {
       name:     formData.name || 'Alimento senza nome',
-      status:   aiResult.status,
+      status:   score.status,
       date:     new Date().toLocaleDateString('it-IT'),
       location: formData.location || 'frigo'
     };
     writeJSON(KEYS.recent, [newItem, ...getRecent()].slice(0, 20));
   }
 
-  /* ─── Analisi AI via Groq ───────────────────────────────── */
-  async function analyzeWithAI(fd) {
-    const apiKey = groqKeyInput.value.trim();
-    if (!apiKey) throw new Error('Inserisci la Groq API key nel campo in alto.');
-
-    const days = daysSince(fd.openedDate);
-    const photoFile = photoInput.files[0];
-
-    // Costruiamo il contenuto del messaggio
-    const textPrompt = `Sei un esperto di sicurezza alimentare. Analizza questo alimento e rispondi SOLO con un oggetto JSON valido (niente markdown, niente testo extra):
-
-Dati forniti:
-- Nome: ${fd.name || 'non specificato'}
-- Categoria: ${fd.category || 'non specificata'}
-- Giorni trascorsi dall'apertura: ${days ?? 'non specificato'}
-- Luogo di conservazione: ${fd.location || 'non specificato'}
-- Note visive/olfattive: ${fd.notes || 'nessuna'}
-
-Rispondi con questo schema JSON:
-{
-  "percentage": <numero intero 0-100, indice di sicurezza stimata>,
-  "status": <"ok" | "soon" | "bad">,
-  "label": <titolo breve in italiano, es. "Stima positiva">,
-  "text": <spiegazione in italiano di 1-2 frasi sul perché di questa valutazione>,
-  "tip": <consiglio pratico in italiano di 1 frase>
-}
-
-Regole: percentage >= 60 → status "ok", 35-59 → "soon", < 35 → "bad".`;
-
-    const content = [];
-
-    // Se c'è una foto, la includiamo come vision
-    if (photoFile) {
-      const base64    = await fileToBase64(photoFile);
-      const mediaType = photoFile.type || 'image/jpeg';
-      content.push({ type: 'image_url', image_url: { url: `data:${mediaType};base64,${base64}` } });
-    }
-
-    content.push({ type: 'text', text: textPrompt });
-
-    const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type':  'application/json'
-      },
-      body: JSON.stringify({
-        model:       'meta-llama/llama-4-scout-17b-16e-instruct',
-        max_tokens:  400,
-        temperature: 0.2,
-        messages: [{ role: 'user', content }]
-      })
-    });
-
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({}));
-      throw new Error(err?.error?.message || `HTTP ${res.status}`);
-    }
-
-    const data  = await res.json();
-    const raw   = data.choices?.[0]?.message?.content?.trim() ?? '';
-    const clean = raw.replace(/```json|```/g, '').trim();
-    return JSON.parse(clean);
-  }
-
-  /* ─── Submit form → analisi AI ─────────────────────────── */
+  /* ─── Submit form ──────────────────────────────────────── */
   const form = document.getElementById('analysisForm');
-  const submitBtn = form.querySelector('button[type="submit"]');
-
-  form.addEventListener('submit', async e => {
+  form.addEventListener('submit', e => {
     e.preventDefault();
-
     const fd = {
       name:       form.name.value.trim(),
       category:   form.category.value,
@@ -778,39 +732,25 @@ Regole: percentage >= 60 → status "ok", 35-59 → "soon", < 35 → "bad".`;
       location:   form.location.value,
       notes:      form.notes.value.trim()
     };
-
-    // Loading state
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<i data-lucide="loader" style="width:16px;height:16px"></i> Analisi AI in corso…';
-    lucide.createIcons();
-
-    try {
-      const aiResult = await analyzeWithAI(fd);
-      renderResultUI(aiResult, fd);
-      updateStorage(aiResult, fd);
-    } catch (err) {
-      // Mostra errore nel pannello risultato
-      els.badge.className = 'result-badge bad';
-      els.badge.innerHTML = '<i data-lucide="alert-circle" style="width:14px;height:14px"></i><span>Errore</span>';
-      els.score.textContent = '--%';
-      els.label.textContent = 'Analisi non completata';
-      els.text.textContent  = err.message;
-      els.meta.textContent  = '';
-      els.tip.textContent   = 'Controlla la chiave API e riprova.';
-      lucide.createIcons();
-    }
-
-    submitBtn.disabled = false;
-    submitBtn.innerHTML = '<i data-lucide="sparkles" style="width:16px;height:16px"></i> Calcola freschezza';
-    lucide.createIcons();
+    const score = computeScore(fd);
+    updateResultUI(score, fd);
+    updateStorage(score, fd);
   });
 
   /* ─── Reset form ───────────────────────────────────────── */
   document.getElementById('resetBtn').addEventListener('click', () => {
     form.reset();
     removePhotoBtn.click();
-    resetResultUI();
+    updateResultUI(null, {});
   });
+
+  const today = new Date();
+  const year = today.getFullYear();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const formattedDate = `${year}-${month}-${day}`;
+        
+  document.getElementById('openedDate').setAttribute('max', formattedDate);
 
 }); // fine DOMContentLoaded
 </script>
