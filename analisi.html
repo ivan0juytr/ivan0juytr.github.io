@@ -1,156 +1,1183 @@
 <!DOCTYPE html>
 <html lang="it">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analisi alimento – Nasometro 2.0</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nasometro Digitale – Analisi alimento</title>
 
-<script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-<style>
-body { font-family: system-ui; background:#f9fafb; margin:0; }
-.container { max-width:600px; margin:auto; padding:1rem; }
-.card { background:white; padding:1rem; border-radius:12px; }
-input,select,textarea,button { width:100%; margin-top:8px; padding:8px; }
-.result { margin-top:1rem; font-size:1.2rem; font-weight:bold; }
-</style>
-</head>
+    <style>
+      :root {
+        --green-50: #f0fdf4;
+        --green-100: #dcfce7;
+        --green-500: #22c55e;
+        --green-600: #16a34a;
+        --yellow-50: #fefce8;
+        --yellow-500: #eab308;
+        --red-50: #fef2f2;
+        --red-500: #ef4444;
+        --blue-50: #eff6ff;
+        --blue-600: #2563eb;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-300: #d1d5db;
+        --gray-500: #6b7280;
+        --gray-600: #4b5563;
+        --gray-900: #111827;
+      }
 
-<body>
-<div class="container">
-<div class="card">
+      * {
+        box-sizing: border-box;
+      }
 
-<h2>Analizza alimento</h2>
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background-color: var(--gray-50);
+        color: var(--gray-900);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-<input id="name" placeholder="Nome alimento">
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
 
-<select id="category">
-<option value="">Categoria</option>
-<option value="carne">Carne</option>
-<option value="latticini">Latticini</option>
-<option value="verdura">Verdura</option>
-<option value="cotti">Cotti</option>
-<option value="altro">Altro</option>
-</select>
+      .page {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
 
-<input type="date" id="openedDate">
+      .navbar {
+        background-color: #ffffff;
+        border-bottom: 1px solid var(--gray-200);
+      }
 
-<select id="location">
-<option value="frigo">Frigo</option>
-<option value="dispensa">Dispensa</option>
-<option value="freezer">Freezer</option>
-</select>
+      .navbar-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.6rem 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+      }
 
-<input type="file" id="photo">
+      .navbar-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+      }
 
-<input type="password" id="apiKey" placeholder="Groq API key">
+      .navbar-brand {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 1rem;
+      }
 
-<button id="analyze">Analizza con AI</button>
-<button id="calc">Calcola freschezza</button>
+      .brand-icon {
+        width: 20px;
+        height: 20px;
+      }
 
-<div class="result" id="result"></div>
+      .navbar-links {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+        font-size: 0.9rem;
+      }
 
-</div>
-</div>
+      .nav-link {
+        padding: 0.4rem 0.7rem;
+        border-radius: 9999px;
+        color: var(--gray-600);
+        text-decoration: none;
+      }
 
-<script>
-lucide.createIcons();
+      .nav-link:hover {
+        background-color: var(--gray-100);
+        color: var(--gray-900);
+      }
 
-let aiScore = null;
-let aiData = null;
+      .nav-link.active {
+        background-color: var(--blue-50);
+        color: var(--blue-600);
+        font-weight: 500;
+      }
 
-function daysSince(date){
- return Math.floor((Date.now()-new Date(date))/86400000);
-}
+      .nav-toggle {
+        display: none;
+        border: none;
+        background: transparent;
+        padding: 0.3rem;
+        border-radius: 9999px;
+        cursor: pointer;
+      }
 
-function computeLocal(fd){
- let d = daysSince(fd.openedDate);
- let risk = {carne:2,latticini:1.5,cotti:1.5,verdura:1}[fd.category]||1;
- if(fd.location==="dispensa") risk+=1;
- if(fd.location==="freezer") risk-=1;
- return Math.max(0,100-(risk+d*0.7)*6);
-}
+      .nav-toggle:hover {
+        background-color: var(--gray-100);
+      }
 
-document.getElementById("analyze").onclick = async ()=>{
- const key = apiKey.value;
- const file = photo.files[0];
- if(!key||!file)return alert("Serve API key e foto");
+      .nav-toggle-icon {
+        width: 22px;
+        height: 22px;
+      }
 
- const reader = new FileReader();
- reader.onload = async ()=>{
-  const base64 = reader.result.split(',')[1];
+      @media (max-width: 768px) {
+        .navbar-inner {
+          padding-inline: 0.75rem;
+        }
 
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions",{
-   method:"POST",
-   headers:{
-    Authorization:`Bearer ${key}`,
-    "Content-Type":"application/json"
-   },
-   body:JSON.stringify({
-    model:"meta-llama/llama-4-scout-17b-16e-instruct",
-    messages:[{
-     role:"user",
-     content:[
-      {type:"image_url",image_url:{url:`data:image/jpeg;base64,${base64}`}},
-      {type:"text",text:`Analizza questo alimento e rispondi SOLO JSON:
+        .navbar-links {
+          width: 100%;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.4rem;
+          padding-top: 0.4rem;
+          border-top: 1px solid var(--gray-100);
+          display: none;
+        }
+
+        .navbar-links.open {
+          display: flex;
+        }
+
+        .nav-toggle {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .nav-link {
+          width: 100%;
+          padding: 0.5rem 0.6rem;
+        }
+      }
+
+      @media (min-width: 769px) {
+        .navbar-inner {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+
+        .navbar-links {
+          display: flex !important;
+          border-top: none;
+          padding-top: 0;
+        }
+      }
+
+      main {
+        flex: 1;
+      }
+
+      .main-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 2rem 1rem 3rem;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+        gap: 1.5rem;
+        align-items: flex-start;
+      }
+
+      @media (max-width: 768px) {
+        .layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      h1 {
+        font-size: 1.4rem;
+        margin: 0 0 0.25rem;
+      }
+
+      .page-subtitle {
+        margin: 0 0 1.5rem;
+        font-size: 0.9rem;
+        color: var(--gray-600);
+      }
+
+      .card {
+        background-color: #ffffff;
+        border-radius: 0.75rem;
+        padding: 1.25rem;
+        border: 1px solid var(--gray-100);
+      }
+
+      .card-header-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+      }
+
+      .card-title {
+        font-size: 0.98rem;
+        font-weight: 600;
+        margin: 0;
+      }
+
+      .card-subtitle {
+        margin: 0;
+        font-size: 0.8rem;
+        color: var(--gray-600);
+      }
+
+      .form-grid {
+        display: grid;
+        gap: 0.75rem;
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+      }
+
+      .field-label {
+        font-size: 0.82rem;
+        font-weight: 500;
+      }
+
+      .field-hint {
+        font-size: 0.75rem;
+        color: var(--gray-500);
+      }
+
+      .input,
+      .select,
+      .textarea {
+        border-radius: 0.5rem;
+        border: 1px solid var(--gray-300);
+        padding: 0.5rem 0.6rem;
+        font-size: 0.9rem;
+        font-family: inherit;
+        color: inherit;
+        background-color: #ffffff;
+      }
+
+      .input:focus,
+      .select:focus,
+      .textarea:focus {
+        outline: 2px solid var(--blue-600);
+        outline-offset: 1px;
+        border-color: transparent;
+      }
+
+      .textarea {
+        resize: vertical;
+        min-height: 72px;
+      }
+
+      .inline {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .inline > * {
+        flex: 1;
+      }
+
+      .badge-soft {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border-radius: 9999px;
+        padding: 0.15rem 0.5rem;
+        font-size: 0.75rem;
+        color: var(--gray-600);
+        background-color: var(--gray-100);
+      }
+
+      .btn-primary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.55rem 1.1rem;
+        border-radius: 9999px;
+        border: none;
+        background-color: var(--green-600);
+        color: #ffffff;
+        font-size: 0.9rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.1s ease, transform 0.1s ease,
+          box-shadow 0.1s ease;
+        box-shadow: 0 8px 12px rgba(22, 163, 74, 0.2);
+      }
+
+      .btn-primary:hover:not(:disabled) {
+        background-color: #15803d;
+        transform: translateY(-1px);
+        box-shadow: 0 10px 16px rgba(22, 163, 74, 0.25);
+      }
+
+      .btn-primary:disabled {
+        opacity: 0.65;
+        cursor: not-allowed;
+      }
+
+      .btn-ghost {
+        border: none;
+        background: transparent;
+        color: var(--gray-600);
+        font-size: 0.85rem;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.3rem 0.2rem;
+      }
+
+      .btn-ghost:hover {
+        color: var(--gray-900);
+      }
+
+      .result-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border-radius: 9999px;
+        padding: 0.18rem 0.6rem;
+        font-size: 0.8rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+      }
+
+      .result-badge.ok {
+        background-color: var(--green-50);
+        color: var(--green-600);
+      }
+
+      .result-badge.soon {
+        background-color: var(--yellow-50);
+        color: var(--yellow-500);
+      }
+
+      .result-badge.bad {
+        background-color: var(--red-50);
+        color: var(--red-500);
+      }
+
+      .result-score {
+        font-size: 1.4rem;
+        font-weight: 700;
+        margin: 0 0 0.25rem;
+      }
+
+      .result-label {
+        font-size: 0.9rem;
+        margin: 0 0 0.5rem;
+      }
+
+      .result-text {
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        margin: 0 0 0.75rem;
+      }
+
+      .result-meta {
+        font-size: 0.78rem;
+        color: var(--gray-500);
+      }
+
+      .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 0.4rem;
+      }
+
+      .pill {
+        font-size: 0.7rem;
+        border-radius: 9999px;
+        padding: 0.1rem 0.6rem;
+        border: 1px dashed var(--gray-300);
+        color: var(--gray-600);
+      }
+
+      .tip-box {
+        margin-top: 0.75rem;
+        padding: 0.6rem 0.7rem;
+        border-radius: 0.6rem;
+        background-color: var(--blue-50);
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        display: flex;
+        gap: 0.4rem;
+      }
+
+      .tip-text {
+        margin: 0;
+      }
+
+      /* API key banner */
+      .apikey-banner {
+        margin-bottom: 1.25rem;
+        padding: 0.7rem 0.9rem;
+        border-radius: 0.6rem;
+        background-color: var(--yellow-50);
+        border: 1px solid #fde68a;
+        font-size: 0.82rem;
+        color: #92400e;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+      }
+
+      .apikey-banner.hidden {
+        display: none;
+      }
+
+      .apikey-inline {
+        display: flex;
+        gap: 0.4rem;
+        flex: 1;
+        min-width: 200px;
+      }
+
+      .apikey-inline input {
+        flex: 1;
+        border-radius: 0.4rem;
+        border: 1px solid #fde68a;
+        padding: 0.3rem 0.5rem;
+        font-size: 0.82rem;
+        font-family: monospace;
+        background-color: #fffbeb;
+        color: #78350f;
+      }
+
+      .apikey-inline input:focus {
+        outline: 2px solid var(--yellow-500);
+        outline-offset: 1px;
+        border-color: transparent;
+      }
+
+      .btn-save-key {
+        border: none;
+        background-color: var(--yellow-500);
+        color: #ffffff;
+        font-size: 0.8rem;
+        font-weight: 500;
+        padding: 0.3rem 0.65rem;
+        border-radius: 0.4rem;
+        cursor: pointer;
+        white-space: nowrap;
+      }
+
+      .btn-save-key:hover {
+        background-color: #ca8a04;
+      }
+
+      /* Preview foto */
+      .photo-preview {
+        margin-top: 0.4rem;
+        border-radius: 0.5rem;
+        overflow: hidden;
+        border: 1px solid var(--gray-200);
+        display: none;
+        max-height: 160px;
+      }
+
+      .photo-preview img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        display: block;
+      }
+
+      /* Loading spinner nel risultato */
+      .loading-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.6rem;
+        padding: 1.2rem 0;
+        color: var(--gray-500);
+        font-size: 0.85rem;
+      }
+
+      .spinner {
+        width: 28px;
+        height: 28px;
+        border: 3px solid var(--gray-200);
+        border-top-color: var(--green-500);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      footer {
+        border-top: 1px solid var(--gray-200);
+        background-color: #ffffff;
+      }
+
+      .footer-inner {
+        max-width: 64rem;
+        margin: 0 auto;
+        padding: 0.8rem 1rem;
+        font-size: 0.78rem;
+        color: var(--gray-600);
+        display: flex;
+        justify-content: space-between;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+      }
+
+      @media (max-width: 640px) {
+        .footer-inner {
+          flex-direction: column;
+          align-items: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <!-- Navbar -->
+      <header class="navbar">
+        <div class="navbar-inner">
+          <div class="navbar-top">
+            <a href="index.html" class="navbar-brand">
+              <i data-lucide="scan-line" class="brand-icon"></i>
+              <span>Nasometro Digitale</span>
+            </a>
+            <button id="navToggle" class="nav-toggle" aria-label="Apri menu">
+              <i data-lucide="menu" class="nav-toggle-icon"></i>
+            </button>
+          </div>
+          <nav id="navMenu" class="navbar-links">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="analisi.html" class="nav-link active">Analisi</a>
+            <a href="storico.html" class="nav-link">Storico</a>
+            <a href="impostazioni.html" class="nav-link">Impostazioni</a>
+            <a href="informazioni.html" class="nav-link">Info</a>
+          </nav>
+        </div>
+      </header>
+
+      <main>
+        <div class="main-inner">
+          <h1>Analizza un alimento</h1>
+          <p class="page-subtitle">
+            Inserisci alcune informazioni sull'alimento e lascia che il
+            Nasometro stimi la sua freschezza con l'AI. Nessun dato viene salvato
+            su server: tutto resta nel tuo browser.
+          </p>
+
+          <!-- Banner API key Groq -->
+          <div class="apikey-banner" id="apikeyBanner">
+            <i data-lucide="key" style="width:15px;height:15px;flex-shrink:0"></i>
+            <span style="white-space:nowrap">API key Groq richiesta:</span>
+            <div class="apikey-inline">
+              <input type="password" id="apikeyInput" placeholder="gsk_..." autocomplete="off" />
+              <button class="btn-save-key" id="saveKeyBtn">Salva</button>
+            </div>
+          </div>
+
+          <div class="layout">
+            <!-- Colonna sinistra: form -->
+            <section class="card">
+              <div class="card-header-row">
+                <div>
+                  <h2 class="card-title">Dettagli alimento</h2>
+                  <p class="card-subtitle">
+                    Più i dati sono accurati, più la stima sarà affidabile.
+                  </p>
+                </div>
+                <span class="badge-soft">
+                  <i data-lucide="sparkles" style="width: 14px; height: 14px"></i>
+                  <span>Powered by Groq AI</span>
+                </span>
+              </div>
+
+              <form id="analysisForm" class="form-grid">
+                <div class="field">
+                  <label class="field-label" for="name">Nome alimento *</label>
+                  <input
+                    id="name"
+                    name="name"
+                    type="text"
+                    class="input"
+                    placeholder="Es. Petto di pollo, Insalata mista..."
+                    required
+                  />
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="category">Categoria</label>
+                  <select id="category" name="category" class="select">
+                    <option value="">Seleziona una categoria</option>
+                    <option value="carne">Carne / Pesce</option>
+                    <option value="latticini">Latticini</option>
+                    <option value="verdura">Frutta e Verdura</option>
+                    <option value="cotti">Cibi cotti</option>
+                    <option value="altro">Altro</option>
+                  </select>
+                  <span class="field-hint">
+                    Serve a calibrare la stima di rischio.
+                  </span>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="openedDate"
+                    >Data di apertura / preparazione *</label
+                  >
+                  <div class="inline">
+                    <input
+                      id="openedDate"
+                      name="openedDate"
+                      type="date"
+                      class="input"
+                      required
+                    />
+                    <select id="openedTime" name="openedTime" class="select">
+                      <option value="">Orario (facoltativo)</option>
+                      <option value="morning">Mattina</option>
+                      <option value="afternoon">Pomeriggio</option>
+                      <option value="evening">Sera</option>
+                    </select>
+                  </div>
+                  <span class="field-hint">
+                    Indica quando il prodotto è stato aperto o cucinato.
+                  </span>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="location">
+                    Dove è conservato?
+                  </label>
+                  <select id="location" name="location" class="select">
+                    <option value="frigo">Frigorifero (2–8°C)</option>
+                    <option value="freezer">Freezer (&lt; 0°C)</option>
+                    <option value="dispensa">Dispensa / ambiente</option>
+                    <option value="altro">Altro</option>
+                  </select>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="notes">
+                    Note visive / olfattive
+                  </label>
+                  <textarea
+                    id="notes"
+                    name="notes"
+                    class="textarea"
+                    placeholder="Es. Colore normale, odore leggermente acido, presenza di liquido nel contenitore..."
+                  ></textarea>
+                  <span class="field-hint">
+                    Il tuo giudizio resta fondamentale: segnala qui dubbi o
+                    dettagli utili.
+                  </span>
+                </div>
+
+                <div class="field">
+                  <label class="field-label" for="photo">
+                    Foto (opzionale – analizzata dall'AI)
+                  </label>
+                  <input id="photo" name="photo" type="file" class="input" accept="image/*" />
+                  <span class="field-hint">
+                    Se alleghi una foto, l'AI la analizzerà visivamente per migliorare la stima. L'immagine non viene mai caricata su server.
+                  </span>
+                  <div class="photo-preview" id="photoPreview">
+                    <img id="photoPreviewImg" src="" alt="Anteprima foto" />
+                  </div>
+                </div>
+
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    margin-top: 0.5rem;
+                    gap: 0.75rem;
+                  "
+                >
+                  <button type="button" id="resetBtn" class="btn-ghost">
+                    <i data-lucide="rotate-ccw" style="width: 14px; height: 14px"></i>
+                    Pulisci campi
+                  </button>
+
+                  <button type="submit" id="submitBtn" class="btn-primary">
+                    <i data-lucide="sparkles" style="width: 16px; height: 16px"></i>
+                    Calcola freschezza
+                  </button>
+                </div>
+              </form>
+            </section>
+
+            <!-- Colonna destra: risultato -->
+            <aside class="card">
+              <div class="card-header-row" style="margin-bottom: 0.5rem">
+                <div>
+                  <h2 class="card-title">Risultato stima</h2>
+                  <p class="card-subtitle">
+                    Stima AI – non sostituisce il tuo giudizio.
+                  </p>
+                </div>
+              </div>
+
+              <div id="resultPanel">
+                <div class="result-badge ok" id="resultBadge">
+                  <i data-lucide="smile-plus" style="width: 14px; height: 14px"></i>
+                  <span id="resultStatusLabel">In attesa di dati</span>
+                </div>
+
+                <p class="result-score" id="resultScore">--%</p>
+                <p class="result-label" id="resultLabel">
+                  Compila il form a sinistra e avvia l'analisi.
+                </p>
+                <p class="result-text" id="resultText">
+                  Il Nasometro userà data di apertura, categoria, condizioni di
+                  conservazione e l'eventuale foto per stimare il rischio tramite AI Groq.
+                </p>
+
+                <p class="result-meta" id="resultMeta">
+                  Nessuna analisi effettuata in questa sessione.
+                </p>
+
+                <div class="pill-row">
+                  <span class="pill" id="pillTime">Tempo non calcolato</span>
+                  <span class="pill" id="pillCategory">Categoria non definita</span>
+                  <span class="pill" id="pillLocation">Posizione non impostata</span>
+                </div>
+
+                <div class="tip-box">
+                  <i data-lucide="info" style="width: 14px; height: 14px"></i>
+                  <p class="tip-text" id="resultTip">
+                    Non consumare mai alimenti con odore sgradevole, muffe
+                    evidenti o dubbi sulla sicurezza, anche se la stima appare
+                    favorevole.
+                  </p>
+                </div>
+              </div>
+            </aside>
+          </div>
+        </div>
+      </main>
+
+      <footer>
+        <div class="footer-inner">
+          <span>Nasometro Digitale • Versione 1.1.0</span>
+          <span>Le stime AI non sostituiscono il buon senso e le norme igieniche.</span>
+        </div>
+      </footer>
+    </div>
+
+    <script>
+      lucide.createIcons();
+
+      // ──────────────────────────────────────────────
+      // Costanti & storage
+      // ──────────────────────────────────────────────
+      const STORAGE_KEYS = {
+        groqApiKey: 'nasometro_groq_api_key',
+        stats: 'nasometro_stats',
+        recent: 'nasometro_recent_items'
+      };
+
+      function readJSON(key, fallback) {
+        const raw = localStorage.getItem(key);
+        if (!raw) return fallback;
+        try { return JSON.parse(raw); } catch { return fallback; }
+      }
+
+      function writeJSON(key, value) {
+        localStorage.setItem(key, JSON.stringify(value));
+      }
+
+      function getGroqKey() {
+        return localStorage.getItem(STORAGE_KEYS.groqApiKey) || '';
+      }
+
+      function saveGroqKey(key) {
+        localStorage.setItem(STORAGE_KEYS.groqApiKey, key.trim());
+      }
+
+      // ──────────────────────────────────────────────
+      // Banner API key
+      // ──────────────────────────────────────────────
+      const apikeyBanner = document.getElementById('apikeyBanner');
+      const apikeyInput  = document.getElementById('apikeyInput');
+      const saveKeyBtn   = document.getElementById('saveKeyBtn');
+
+      function refreshApikeyBanner() {
+        const key = getGroqKey();
+        if (key && key.startsWith('gsk_')) {
+          apikeyBanner.classList.add('hidden');
+        } else {
+          apikeyBanner.classList.remove('hidden');
+        }
+      }
+
+      saveKeyBtn.addEventListener('click', () => {
+        const val = apikeyInput.value.trim();
+        if (!val) return;
+        saveGroqKey(val);
+        refreshApikeyBanner();
+      });
+
+      refreshApikeyBanner();
+
+      // ──────────────────────────────────────────────
+      // Anteprima foto
+      // ──────────────────────────────────────────────
+      const photoInput   = document.getElementById('photo');
+      const photoPreview = document.getElementById('photoPreview');
+      const photoPreviewImg = document.getElementById('photoPreviewImg');
+      let photoBase64 = null; // { data: base64string, mediaType: 'image/jpeg' }
+
+      photoInput.addEventListener('change', () => {
+        const file = photoInput.files[0];
+        if (!file) {
+          photoPreview.style.display = 'none';
+          photoBase64 = null;
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const dataUrl = e.target.result;
+          // Mostra anteprima
+          photoPreviewImg.src = dataUrl;
+          photoPreview.style.display = 'block';
+          // Salva base64 puro (senza il prefisso data:...)
+          const parts = dataUrl.split(',');
+          photoBase64 = {
+            data: parts[1],
+            mediaType: file.type || 'image/jpeg'
+          };
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // ──────────────────────────────────────────────
+      // Utility: giorni trascorsi
+      // ──────────────────────────────────────────────
+      function daysSince(dateStr) {
+        if (!dateStr) return null;
+        const opened = new Date(dateStr);
+        if (isNaN(opened.getTime())) return null;
+        const diff = new Date() - opened;
+        return Math.floor(diff / (1000 * 60 * 60 * 24));
+      }
+
+      // ──────────────────────────────────────────────
+      // Chiama Groq API
+      // ──────────────────────────────────────────────
+      async function callGroqAI(formData, days) {
+        const apiKey = getGroqKey();
+        if (!apiKey) throw new Error('API key Groq non configurata.');
+
+        const categoryLabels = {
+          carne: 'Carne o pesce',
+          latticini: 'Latticini',
+          verdura: 'Frutta e verdura',
+          cotti: 'Cibi cotti',
+          altro: 'Altro',
+          '': 'Non specificata'
+        };
+
+        const locationLabels = {
+          frigo: 'Frigorifero (2–8°C)',
+          freezer: 'Freezer (< 0°C)',
+          dispensa: 'Dispensa / temperatura ambiente',
+          altro: 'Altro',
+          '': 'Non specificato'
+        };
+
+        const systemPrompt = `Sei il motore di analisi del "Nasometro Digitale", uno strumento che stima la freschezza e il rischio di deterioramento degli alimenti.
+Rispondi SOLO con un oggetto JSON valido, senza markdown, senza backtick, senza testo aggiuntivo prima o dopo. Assicurati che il cibo sia prima di tutto commestibile, non dare score > 0 a cose NON commestibili. Abbi la certezza di qualsiasi cibo prima. 
+
+Il JSON deve avere esattamente questi campi:
 {
-"nome":"",
-"categoria":"carne|latticini|verdura|cotti|altro",
-"rischio":"basso|medio|alto"
-}`}
-     ]
-    }]
-   })
-  });
+  "score": <numero intero 0-100, dove 100 = perfettamente fresco, 0 = certamente andato a male>,
+  "status": <"ok" | "soon" | "bad">,
+  "label": <titolo breve della valutazione, max 5 parole, in italiano>,
+  "text": <spiegazione dettagliata in italiano, 2-3 frasi, spiega il ragionamento>,
+  "tip": <consiglio pratico in italiano, 1-2 frasi (Consiglio negativo se non cibo)>
+}
 
-  const data = await res.json();
-  const parsed = JSON.parse(data.choices[0].message.content);
+Regole per status:
+- "ok" se score >= 60
+- "soon" se score tra 35 e 59
+- "bad" se score < 35
 
-  aiData = parsed;
+Considera attentamente: tipo di alimento, giorni trascorsi, metodo di conservazione, eventuali note sensoriali, e se presente l'analisi visiva della foto.`;
 
-  name.value = parsed.nome;
-  category.value = parsed.categoria;
+        const userText = `Analizza questo alimento:
+- Nome: ${formData.name || 'non specificato'}
+- Categoria: ${categoryLabels[formData.category] || 'non specificata'}
+- Giorni trascorsi dall'apertura/preparazione: ${days !== null ? days : 'sconosciuti'}
+- Conservazione: ${locationLabels[formData.location] || 'non specificato'}
+- Note dell'utente: ${formData.notes || 'nessuna'}
+${photoBase64 ? '- È allegata una foto dell\'alimento: analizzala visivamente.' : '- Nessuna foto allegata.'}`;
 
-  aiScore = {basso:80,medio:50,alto:20}[parsed.rischio];
+        // Costruisci il contenuto del messaggio (con o senza immagine)
+        let userContent;
+        if (photoBase64) {
+          userContent = [
+            {
+              type: 'image_url',
+              image_url: {
+                url: `data:${photoBase64.mediaType};base64,${photoBase64.data}`
+              }
+            },
+            { type: 'text', text: userText }
+          ];
+        } else {
+          userContent = userText;
+        }
 
-  alert("AI completata");
- };
- reader.readAsDataURL(file);
-};
+        // Scegli il modello: llava per vision, llama per testo puro
+        const model = photoBase64
+          ? 'meta-llama/llama-4-scout-17b-16e-instruct'
+          : 'meta-llama/llama-4-scout-17b-16e-instruct';
 
-document.getElementById("calc").onclick = ()=>{
- const fd = {
-  name:name.value,
-  category:category.value,
-  openedDate:openedDate.value,
-  location:location.value
- };
+        const body = {
+          model,
+          max_tokens: 512,
+          temperature: 0.3,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userContent }
+          ]
+        };
 
- let local = computeLocal(fd);
- let final = local;
+        const res = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify(body)
+        });
 
- if(aiScore){
-  final = Math.round(local*0.6 + aiScore*0.4);
- }
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({}));
+          throw new Error(err?.error?.message || `Errore API Groq: ${res.status}`);
+        }
 
- let status = final>60?"OK":final>35?"ATTENZIONE":"RISCHIO";
+        const data = await res.json();
+        const raw = data.choices?.[0]?.message?.content || '';
 
- result.innerText = `${final}% - ${status}`;
+        // Strip eventuali backtick/markdown
+        const clean = raw.replace(/```json|```/gi, '').trim();
+        const parsed = JSON.parse(clean);
+        return parsed;
+      }
 
- // salva
- let list = JSON.parse(localStorage.getItem("recent")||"[]");
+      // ──────────────────────────────────────────────
+      // Aggiorna UI risultato
+      // ──────────────────────────────────────────────
+      const resultBadge       = document.getElementById('resultBadge');
+      const resultScore       = document.getElementById('resultScore');
+      const resultLabel       = document.getElementById('resultLabel');
+      const resultText        = document.getElementById('resultText');
+      const resultMeta        = document.getElementById('resultMeta');
+      const pillTime          = document.getElementById('pillTime');
+      const pillCategory      = document.getElementById('pillCategory');
+      const pillLocation      = document.getElementById('pillLocation');
+      const resultTip         = document.getElementById('resultTip');
+      const resultPanel       = document.getElementById('resultPanel');
 
- list.unshift({
-  name:fd.name,
-  status:status==="OK"?"ok":status==="ATTENZIONE"?"soon":"bad",
-  date:new Date().toLocaleDateString("it-IT"),
-  location:fd.location,
-  timestamp:Date.now()
- });
+      function showLoadingState() {
+        resultPanel.innerHTML = `
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <span>L'AI sta analizzando l'alimento…</span>
+          </div>`;
+      }
 
- localStorage.setItem("recent",JSON.stringify(list.slice(0,20)));
-};
-</script>
+      function restoreResultPanel() {
+        resultPanel.innerHTML = `
+          <div class="result-badge ok" id="resultBadge">
+            <i data-lucide="smile-plus" style="width:14px;height:14px"></i>
+            <span id="resultStatusLabel">In attesa di dati</span>
+          </div>
+          <p class="result-score" id="resultScore">--%</p>
+          <p class="result-label" id="resultLabel">Compila il form a sinistra e avvia l'analisi.</p>
+          <p class="result-text" id="resultText">Il Nasometro userà data di apertura, categoria, condizioni di conservazione e l'eventuale foto per stimare il rischio tramite AI Groq.</p>
+          <p class="result-meta" id="resultMeta">Nessuna analisi effettuata in questa sessione.</p>
+          <div class="pill-row">
+            <span class="pill" id="pillTime">Tempo non calcolato</span>
+            <span class="pill" id="pillCategory">Categoria non definita</span>
+            <span class="pill" id="pillLocation">Posizione non impostata</span>
+          </div>
+          <div class="tip-box">
+            <i data-lucide="info" style="width:14px;height:14px"></i>
+            <p class="tip-text" id="resultTip">Non consumare mai alimenti con odore sgradevole, muffe evidenti o dubbi sulla sicurezza, anche se la stima appare favorevole.</p>
+          </div>`;
+        lucide.createIcons();
+      }
 
-</body>
+      function updateResultUI(aiResult, formData, days) {
+        // Ripristina struttura HTML se serve
+        restoreResultPanel();
+
+        const badge   = document.getElementById('resultBadge');
+        const slabel  = badge.querySelector('#resultStatusLabel') || badge.querySelector('span');
+        const score   = document.getElementById('resultScore');
+        const label   = document.getElementById('resultLabel');
+        const text    = document.getElementById('resultText');
+        const meta    = document.getElementById('resultMeta');
+        const pTime   = document.getElementById('pillTime');
+        const pCat    = document.getElementById('pillCategory');
+        const pLoc    = document.getElementById('pillLocation');
+        const tip     = document.getElementById('resultTip');
+
+        badge.className = 'result-badge ' + aiResult.status;
+
+        const iconMap = { ok: 'smile-plus', soon: 'alert-circle', bad: 'skull' };
+        badge.innerHTML = `<i data-lucide="${iconMap[aiResult.status] || 'info'}" style="width:14px;height:14px"></i><span>${aiResult.label}</span>`;
+
+        score.textContent = aiResult.score + '%';
+        label.textContent = aiResult.label;
+        text.textContent  = aiResult.text;
+
+        const now = new Date();
+        const dateStr = now.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        meta.textContent = 'Analisi AI effettuata il ' + dateStr + (days !== null ? ' • giorni trascorsi: ' + days : '');
+
+        pTime.textContent = days !== null ? days + ' giorni trascorsi' : 'Tempo non calcolato';
+        pCat.textContent  = formData.category ? 'Categoria: ' + formData.category : 'Categoria non definita';
+        pLoc.textContent  = formData.location  ? 'Posizione: ' + formData.location  : 'Posizione non impostata';
+        tip.textContent   = aiResult.tip;
+
+        lucide.createIcons();
+      }
+
+      function showErrorUI(message) {
+        restoreResultPanel();
+        const badge = document.getElementById('resultBadge');
+        badge.className = 'result-badge bad';
+        badge.innerHTML = `<i data-lucide="alert-triangle" style="width:14px;height:14px"></i><span>Errore</span>`;
+        document.getElementById('resultScore').textContent = '--';
+        document.getElementById('resultLabel').textContent = 'Impossibile completare l\'analisi';
+        document.getElementById('resultText').textContent = message;
+        document.getElementById('resultMeta').textContent = '';
+        lucide.createIcons();
+      }
+
+      // ──────────────────────────────────────────────
+      // Storage (stats + recenti)
+      // ──────────────────────────────────────────────
+      function updateStorage(aiResult, formData) {
+        const stats = readJSON(STORAGE_KEYS.stats, { ok: 0, soon: 0, bad: 0 });
+        const s = aiResult.status;
+        stats[s] = (stats[s] || 0) + 1;
+        writeJSON(STORAGE_KEYS.stats, stats);
+
+        const dateStr = new Date().toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        const newItem = {
+          name: formData.name || 'Alimento senza nome',
+          status: s,
+          date: dateStr,
+          location: formData.location || 'frigo'
+        };
+        const recent = readJSON(STORAGE_KEYS.recent, []);
+        writeJSON(STORAGE_KEYS.recent, [newItem, ...recent].slice(0, 20));
+      }
+
+      // ──────────────────────────────────────────────
+      // Submit form
+      // ──────────────────────────────────────────────
+      const form      = document.getElementById('analysisForm');
+      const submitBtn = document.getElementById('submitBtn');
+      const resetBtn  = document.getElementById('resetBtn');
+
+      form.addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const apiKey = getGroqKey();
+        if (!apiKey) {
+          apikeyBanner.classList.remove('hidden');
+          apikeyInput.focus();
+          return;
+        }
+
+        const formData = {
+          name:       form.name.value.trim(),
+          category:   form.category.value,
+          openedDate: form.openedDate.value,
+          openedTime: form.openedTime.value,
+          location:   form.location.value,
+          notes:      form.notes.value.trim()
+        };
+
+        const days = daysSince(formData.openedDate);
+
+        submitBtn.disabled = true;
+        showLoadingState();
+
+        try {
+          const aiResult = await callGroqAI(formData, days);
+          updateResultUI(aiResult, formData, days);
+          updateStorage(aiResult, formData);
+        } catch (err) {
+          console.error('Groq error:', err);
+          showErrorUI(err.message || 'Errore sconosciuto durante l\'analisi AI.');
+        } finally {
+          submitBtn.disabled = false;
+        }
+      });
+
+      resetBtn.addEventListener('click', function () {
+        form.reset();
+        photoPreview.style.display = 'none';
+        photoBase64 = null;
+        restoreResultPanel();
+      });
+
+      // ──────────────────────────────────────────────
+      // Navbar mobile toggle
+      // ──────────────────────────────────────────────
+      const navToggle = document.getElementById('navToggle');
+      const navMenu   = document.getElementById('navMenu');
+
+      if (navToggle && navMenu) {
+        navToggle.addEventListener('click', () => {
+          const isOpen = navMenu.classList.toggle('open');
+          navToggle.innerHTML = '';
+          const icon = document.createElement('i');
+          icon.setAttribute('data-lucide', isOpen ? 'x' : 'menu');
+          icon.className = 'nav-toggle-icon';
+          navToggle.appendChild(icon);
+          lucide.createIcons();
+        });
+
+        navMenu.querySelectorAll('a.nav-link').forEach((link) => {
+          link.addEventListener('click', () => {
+            if (window.innerWidth <= 768 && navMenu.classList.contains('open')) {
+              navMenu.classList.remove('open');
+              navToggle.innerHTML = '';
+              const icon = document.createElement('i');
+              icon.setAttribute('data-lucide', 'menu');
+              icon.className = 'nav-toggle-icon';
+              navToggle.appendChild(icon);
+              lucide.createIcons();
+            }
+          });
+        });
+      }
+    </script>
+  </body>
 </html>
